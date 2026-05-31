@@ -5,78 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For You</title>
     <style>
-        /* Base Reset & Styling */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', sans-serif; }
-        body { background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        /* Base Reset & Deep Red Background */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+        body { background-color: #b31b34; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; margin: 0; }
 
-        /* Lock Screen Styling */
-        #lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease; }
-        
-        .photo-side img { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4d4d; margin-bottom: 25px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.4); }
-        
-        .passcode-title { font-size: 1.1rem; margin-bottom: 25px; font-weight: 300; letter-spacing: 2px; color: #d1d1d1; }
-        
-        .dots-container { display: flex; gap: 18px; margin-bottom: 45px; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; transition: all 0.2s ease; }
-        .dot.active { background-color: #ff4d4d; border-color: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
-        
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; max-width: 300px; }
-        .key { width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: none; color: white; font-size: 1.8rem; font-weight: 300; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; }
-        .key:active { background: rgba(255, 255, 255, 0.25); }
-        .key.action { font-size: 1rem; background: transparent; font-weight: bold; }
-        .key.clear { color: #ff4d4d; }
-        .key.enter { color: #4CAF50; }
+        /* Full Screen Lock Overlay */
+        #lock-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #b31b34; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
 
-        /* Main Content (Envelope Placeholder) */
+        /* Side-by-Side Container (Wraps on mobile) */
+        .lock-container {
+            display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
+            width: 100%; max-width: 800px; padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .lock-container { flex-direction: column; gap: 40px; }
+        }
+
+        /* --- Left Side: Polaroid Aesthetic --- */
+        .polaroid {
+            background: white; padding: 15px 15px 50px 15px;
+            border-radius: 4px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            position: relative; text-align: center; width: 220px;
+        }
+        
+        .polaroid img {
+            width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee;
+        }
+        
+        .polaroid .caption {
+            color: #b31b34; font-family: 'Brush Script MT', 'Pacifico', cursive; font-size: 1.6rem;
+            position: absolute; bottom: 12px; left: 0; width: 100%;
+        }
+        
+        /* The Pink Bow */
+        .bow {
+            position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg);
+        }
+
+        /* --- Right Side: Keypad Aesthetic --- */
+        .keypad-side { display: flex; flex-direction: column; align-items: center; }
+        
+        .passcode-title {
+            font-size: 1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: normal;
+        }
+        
+        /* Square Passcode Dots */
+        .dots-container { display: flex; gap: 12px; margin-bottom: 30px; }
+        
+        .dot {
+            width: 20px; height: 20px; border: 2px solid #ff99aa; border-radius: 4px; transition: all 0.2s ease;
+        }
+        
+        .dot.active { background-color: #ff99aa; }
+        
+        /* The Pink Circular Buttons */
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        
+        .key {
+            width: 50px; height: 50px; border-radius: 50%; background: #ff99aa; border: none;
+            color: #b31b34; font-size: 1.4rem; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; transition: transform 0.1s;
+        }
+        
+        .key:active { transform: scale(0.9); }
+        
+        /* The Pill-Shaped Enter Button */
+        .enter-btn {
+            background: #ff99aa; color: #b31b34; border: none; padding: 10px 40px;
+            border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+        }
+        
+        .enter-btn:active { transform: scale(0.95); }
+
+        /* Main Content (Hidden until unlocked) */
         #main-content { display: none; background-color: #fdf6e3; width: 100%; height: 100%; justify-content: center; align-items: center; flex-direction: column; color: #333; }
     </style>
 </head>
 <body>
 
-    <!-- 1. PASSCODE LOCK SCREEN -->
+    <!-- PASSCODE LOCK SCREEN -->
     <div id="lock-screen">
-        <div class="photo-side">
-            <!-- Placeholder image for now. We will upload her real photo later -->
-            <img src="https://via.placeholder.com/150/ff4d4d/ffffff?text=Sweetu" alt="My Sweetu" id="lock-photo">
-        </div>
-
-        <div class="keypad-side">
-            <h2 class="passcode-title">Enter Passcode</h2>
+        <div class="lock-container">
             
-            <div class="dots-container">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+            <!-- Polaroid Image Side -->
+            <div class="polaroid">
+                <div class="bow">🎀</div>
+                <!-- Change 'sweetu.jpg' to the actual name of her photo once you upload it -->
+                <img src="sweetu.jpg" alt="My Sweetu" id="lock-photo" onerror="this.src='https://via.placeholder.com/200/cccccc/ffffff?text=Upload+Photo'">
+                <div class="caption">For You!</div>
             </div>
 
-            <div class="keypad-grid">
-                <button class="key" onclick="pressKey('1')">1</button>
-                <button class="key" onclick="pressKey('2')">2</button>
-                <button class="key" onclick="pressKey('3')">3</button>
-                <button class="key" onclick="pressKey('4')">4</button>
-                <button class="key" onclick="pressKey('5')">5</button>
-                <button class="key" onclick="pressKey('6')">6</button>
-                <button class="key" onclick="pressKey('7')">7</button>
-                <button class="key" onclick="pressKey('8')">8</button>
-                <button class="key" onclick="pressKey('9')">9</button>
-                <button class="key action clear" onclick="clearCode()">Clear</button>
-                <button class="key" onclick="pressKey('0')">0</button>
-                <button class="key action enter" onclick="checkPasscode()">Enter</button>
+            <!-- Keypad Side -->
+            <div class="keypad-side">
+                <h2 class="passcode-title">Enter a Passcode</h2>
+                
+                <div class="dots-container">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+
+                <div class="keypad-grid">
+                    <button class="key" onclick="pressKey('1')">1</button>
+                    <button class="key" onclick="pressKey('2')">2</button>
+                    <button class="key" onclick="pressKey('3')">3</button>
+                    <button class="key" onclick="pressKey('4')">4</button>
+                    <button class="key" onclick="pressKey('5')">5</button>
+                    <button class="key" onclick="pressKey('6')">6</button>
+                    <button class="key" onclick="pressKey('7')">7</button>
+                    <button class="key" onclick="pressKey('8')">8</button>
+                    <button class="key" onclick="pressKey('9')">9</button>
+                    <button class="key" onclick="clearCode()">*</button>
+                    <button class="key" onclick="pressKey('0')">0</button>
+                    <button class="key" onclick="clearCode()">#</button>
+                </div>
+                
+                <button class="enter-btn" onclick="checkPasscode()">Enter</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. MAIN CONTENT (Revealed after unlock) -->
+    <!-- MAIN ENVELOPE CONTENT -->
     <div id="main-content">
-        <!-- The Pink Sweat$ track is locked and loaded here -->
         <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
-        
         <h2>Envelope Interface Loading...</h2>
-        <p>We will build the envelope here next!</p>
     </div>
 
-    <!-- 3. LOGIC SCRIPT -->
+    <!-- LOGIC SCRIPT -->
     <script>
         const CORRECT_PASSCODE = "1507"; 
         let currentInput = "";
@@ -107,17 +169,12 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Play Pink Sweat$ song
                 bgMusic.play().catch(e => console.log("Waiting for audio file."));
-                
-                // Smooth fade out of the lock screen
                 const lockScreen = document.getElementById('lock-screen');
                 lockScreen.style.opacity = "0";
-                
                 setTimeout(() => {
                     lockScreen.style.display = "none";
-                    const mainContent = document.getElementById('main-content');
-                    mainContent.style.display = "flex";
+                    document.getElementById('main-content').style.display = "flex";
                 }, 800);
             } else {
                 alert("Wrong passcode, try again sweetu! ❤️");
@@ -126,5 +183,4 @@
         }
     </script>
 </body>
-  </html>
-  
+</html>
