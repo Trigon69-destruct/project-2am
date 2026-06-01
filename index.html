@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For You</title>
+    <!-- Importing Premium Google Fonts -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap');
+        
         /* Base Reset & Deep Red Background */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
-        body { background-color: #b31b34; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; margin: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: #ba1636; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            font-family: 'Quicksand', sans-serif;
+        }
 
         /* Full Screen Lock Overlay */
         #lock-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #b31b34; z-index: 100;
+            background: #ba1636; z-index: 100;
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.8s ease;
         }
 
-        /* Side-by-Side Container (Wraps on mobile) */
+        /* Container Layout */
         .lock-container {
             display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
             width: 100%; max-width: 800px; padding: 20px;
@@ -27,61 +39,113 @@
             .lock-container { flex-direction: column; gap: 40px; }
         }
 
-        /* --- Left Side: Polaroid Aesthetic --- */
+        /* --- Left Side: Premium Polaroid Aesthetic --- */
         .polaroid {
-            background: white; padding: 15px 15px 50px 15px;
-            border-radius: 4px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            position: relative; text-align: center; width: 220px;
+            background: white; padding: 15px 15px 75px 15px; /* Extra padding for text */
+            border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative; text-align: center; width: 240px;
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
         }
+        
+        .polaroid:hover { transform: rotate(0deg) scale(1.02); }
         
         .polaroid img {
-            width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee;
+            width: 100%; aspect-ratio: 1/1; object-fit: cover; 
+            background-color: #eee; border-radius: 4px;
         }
         
+        /* Premium Text Layout */
         .polaroid .caption {
-            color: #b31b34; font-family: 'Brush Script MT', 'Pacifico', cursive; font-size: 1.6rem;
-            position: absolute; bottom: 12px; left: 0; width: 100%;
+            color: #ba1636; 
+            position: absolute; bottom: 15px; left: 0; width: 100%;
+            line-height: 1.2;
         }
         
-        /* The Pink Bow */
+        .caption .title {
+            font-family: 'Dancing Script', cursive; 
+            font-size: 2rem; 
+            display: block;
+        }
+        
+        .caption .subtitle {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ff6b81;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Floating 3D Bow */
         .bow {
-            position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg);
+            position: absolute; top: -25px; left: -25px; font-size: 4rem; 
+            transform: rotate(-15deg);
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotate(-15deg) translateY(0); }
+            50% { transform: rotate(-15deg) translateY(-8px); }
         }
 
         /* --- Right Side: Keypad Aesthetic --- */
         .keypad-side { display: flex; flex-direction: column; align-items: center; }
         
         .passcode-title {
-            font-size: 1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: normal;
+            font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; 
+            letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
         }
         
-        /* Square Passcode Dots */
-        .dots-container { display: flex; gap: 12px; margin-bottom: 30px; }
+        /* Square Passcode Dots with Smooth Morph */
+        .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
         
         .dot {
-            width: 20px; height: 20px; border: 2px solid #ff99aa; border-radius: 4px; transition: all 0.2s ease;
+            width: 22px; height: 22px; border: 2.5px solid #ff99aa; 
+            border-radius: 6px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .dot.active { background-color: #ff99aa; }
+        .dot.active { 
+            background-color: #ff99aa; 
+            transform: scale(1.15); 
+            border-radius: 50%; /* Morphs into a circle when filled */
+        }
         
-        /* The Pink Circular Buttons */
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        /* Shake Error Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; }
+        .shake .dot { border-color: white; background-color: transparent; }
+
+        /* Tactile Pink Circular Buttons */
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
         
         .key {
-            width: 50px; height: 50px; border-radius: 50%; background: #ff99aa; border: none;
-            color: #b31b34; font-size: 1.4rem; font-weight: bold; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; transition: transform 0.1s;
+            width: 55px; height: 55px; border-radius: 50%; background: #ff99aa; border: none;
+            color: #ba1636; font-size: 1.5rem; font-weight: 700; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
+            font-family: 'Quicksand', sans-serif;
         }
         
-        .key:active { transform: scale(0.9); }
+        .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
         /* The Pill-Shaped Enter Button */
         .enter-btn {
-            background: #ff99aa; color: #b31b34; border: none; padding: 10px 40px;
-            border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+            background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px;
+            border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
+            font-family: 'Quicksand', sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
         }
         
-        .enter-btn:active { transform: scale(0.95); }
+        .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         /* Main Content (Hidden until unlocked) */
         #main-content { display: none; background-color: #fdf6e3; width: 100%; height: 100%; justify-content: center; align-items: center; flex-direction: column; color: #333; }
@@ -96,16 +160,19 @@
             <!-- Polaroid Image Side -->
             <div class="polaroid">
                 <div class="bow">🎀</div>
-                <!-- Change 'sweetu.jpg' to the actual name of her photo once you upload it -->
+                <!-- Image source waiting for your upload -->
                 <img src="sweetu.jpg" alt="My Sweetu" id="lock-photo" onerror="this.src='https://via.placeholder.com/200/cccccc/ffffff?text=Upload+Photo'">
-                <div class="caption">For You!</div>
+                <div class="caption">
+                    <span class="title">Happy anniversary</span>
+                    <span class="subtitle">Congratulations for one year of our love</span>
+                </div>
             </div>
 
             <!-- Keypad Side -->
             <div class="keypad-side">
                 <h2 class="passcode-title">Enter a Passcode</h2>
                 
-                <div class="dots-container">
+                <div class="dots-container" id="dots-container">
                     <div class="dot"></div>
                     <div class="dot"></div>
                     <div class="dot"></div>
@@ -140,9 +207,10 @@
 
     <!-- LOGIC SCRIPT -->
     <script>
-        const CORRECT_PASSCODE = "1507"; 
+        const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
+        const dotsContainer = document.getElementById('dots-container');
         const bgMusic = document.getElementById('bg-music');
 
         function pressKey(num) {
@@ -169,6 +237,7 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
+                // Success: Play music and fade out
                 bgMusic.play().catch(e => console.log("Waiting for audio file."));
                 const lockScreen = document.getElementById('lock-screen');
                 lockScreen.style.opacity = "0";
@@ -177,8 +246,12 @@
                     document.getElementById('main-content').style.display = "flex";
                 }, 800);
             } else {
-                alert("Wrong passcode, try again sweetu! ❤️");
-                clearCode();
+                // Error: Trigger shake animation and clear
+                dotsContainer.classList.add('shake');
+                setTimeout(() => {
+                    dotsContainer.classList.remove('shake');
+                    clearCode();
+                }, 500);
             }
         }
     </script>
