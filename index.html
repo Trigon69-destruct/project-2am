@@ -29,21 +29,35 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Container Layout (Updated padding for ribbon) */
+        /* Container Layout */
         .lock-container {
             display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
-            width: 100%; max-width: 800px; padding: 40px 20px 20px 20px;
+            width: 100%; max-width: 800px; padding: 20px;
         }
 
-        /* Mobile Fixes */
+        /* --- THE BULLETPROOF MOBILE LAYOUT SHRINK --- */
         @media (max-width: 768px) {
-            .lock-container { flex-direction: column; gap: 40px; }
-            .polaroid { margin-left: 15px; } /* Shifts the frame right to clear the boundary */
+            .lock-container { flex-direction: column; gap: 20px; }
+            .polaroid { 
+                width: 210px !important; /* Slightly smaller polaroid */
+                padding: 12px 12px 65px 12px !important; 
+                margin-top: 30px; /* Forces space at the top */
+                margin-left: 10px; 
+            }
+            .bow { 
+                left: -12px !important; 
+                top: -18px !important; 
+                font-size: 3rem !important; /* Slightly smaller ribbon */
+            }
+            .keypad-grid { gap: 12px !important; margin-bottom: 20px !important; }
+            .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } /* Smaller keys */
+            .dots-container { margin-bottom: 25px !important; }
+            .passcode-title { margin-bottom: 15px !important; }
         }
 
         /* --- Left Side: Premium Polaroid Aesthetic --- */
         .polaroid {
-            background: white; padding: 15px 15px 75px 15px; /* Extra padding for text */
+            background: white; padding: 15px 15px 75px 15px; 
             border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             position: relative; text-align: center; width: 240px;
             transform: rotate(-2deg);
@@ -111,7 +125,7 @@
         .dot.active { 
             background-color: #ff99aa; 
             transform: scale(1.15); 
-            border-radius: 50%; /* Morphs into a circle when filled */
+            border-radius: 50%; 
         }
         
         /* Shake Error Animation */
