@@ -39,25 +39,25 @@
         @media (max-width: 768px) {
             .lock-container { flex-direction: column; gap: 20px; }
             .polaroid { 
-                width: 210px !important; /* Slightly smaller polaroid */
-                padding: 12px 12px 65px 12px !important; 
-                margin-top: 30px; /* Forces space at the top */
+                width: 210px !important; 
+                padding: 12px 12px 75px 12px !important; /* Kept wide enough at the bottom for the new text */
+                margin-top: 30px; 
                 margin-left: 10px; 
             }
             .bow { 
                 left: -12px !important; 
                 top: -18px !important; 
-                font-size: 3rem !important; /* Slightly smaller ribbon */
+                font-size: 3rem !important; 
             }
             .keypad-grid { gap: 12px !important; margin-bottom: 20px !important; }
-            .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } /* Smaller keys */
+            .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } 
             .dots-container { margin-bottom: 25px !important; }
             .passcode-title { margin-bottom: 15px !important; }
         }
 
         /* --- Left Side: Premium Polaroid Aesthetic --- */
         .polaroid {
-            background: white; padding: 15px 15px 75px 15px; 
+            background: white; padding: 15px 15px 85px 15px; 
             border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             position: relative; text-align: center; width: 240px;
             transform: rotate(-2deg);
@@ -76,21 +76,13 @@
             color: #ba1636; 
             position: absolute; bottom: 15px; left: 0; width: 100%;
             line-height: 1.2;
+            padding: 0 10px; /* Keeps text from touching the absolute edges */
         }
         
         .caption .title {
             font-family: 'Dancing Script', cursive; 
-            font-size: 2rem; 
+            font-size: 1.6rem; /* Scaled perfectly to fit the space in a beautiful wrapped layout */
             display: block;
-        }
-        
-        .caption .subtitle {
-            font-family: 'Quicksand', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #ff6b81;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
         }
         
         /* Floating 3D Bow */
@@ -179,8 +171,7 @@
                 <!-- Image source waiting for your upload -->
                 <img src="sweetu.jpg" alt="My Sweetu" id="lock-photo" onerror="this.src='https://via.placeholder.com/200/cccccc/ffffff?text=Upload+Photo'">
                 <div class="caption">
-                    <span class="title">Happy anniversary</span>
-                    <span class="subtitle">Congratulations for one year of our love</span>
+                    <span class="title">Congratulations for one year of our love</span>
                 </div>
             </div>
 
