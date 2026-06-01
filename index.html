@@ -29,14 +29,16 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Container Layout */
+        /* Container Layout (Updated padding for ribbon) */
         .lock-container {
             display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
-            width: 100%; max-width: 800px; padding: 20px;
+            width: 100%; max-width: 800px; padding: 40px 20px 20px 20px;
         }
 
+        /* Mobile Fixes */
         @media (max-width: 768px) {
             .lock-container { flex-direction: column; gap: 40px; }
+            .polaroid { margin-left: 15px; } /* Shifts the frame right to clear the boundary */
         }
 
         /* --- Left Side: Premium Polaroid Aesthetic --- */
