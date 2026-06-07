@@ -9,18 +9,9 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            background-color: #ba1636; 
-            color: white; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            overflow: hidden; 
-            font-family: 'Quicksand', sans-serif;
-            /* Prevents weird text highlighting when tapping buttons */
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            background-color: #ba1636; color: white; display: flex; justify-content: center; 
+            align-items: center; height: 100vh; overflow: hidden; font-family: 'Quicksand', sans-serif;
+            -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
         }
 
         /* Full Screen Overlays */
@@ -30,12 +21,11 @@
             transition: opacity 0.8s ease;
         }
         
-        /* Hide upcoming screens by default */
         #envelope-screen, #main-content { opacity: 0; display: none; pointer-events: none; }
         
-        /* Layer priorities */
+        /* Layer priorities & Backgrounds */
         #lock-screen { background: #ba1636; z-index: 100; }
-        #envelope-screen { background: #fdf6e3; z-index: 90; }
+        #envelope-screen { background: #f4ece4; z-index: 90; color: #333; } /* Warm beige from IG */
         #main-content { background: #f8e1e7; z-index: 80; color: #333; }
 
         .lock-container {
@@ -45,12 +35,7 @@
 
         @media (max-width: 768px) {
             .lock-container { flex-direction: column; gap: 20px; }
-            .polaroid { 
-                width: 240px !important; /* UPSIZED POLAROID */
-                padding: 12px 12px 75px 12px !important; 
-                margin-top: 20px; 
-                margin-left: 10px; 
-            }
+            .polaroid { width: 240px !important; padding: 12px 12px 75px 12px !important; margin-top: 20px; margin-left: 10px; }
             .bow { left: -15px !important; top: -20px !important; font-size: 3.5rem !important; }
             .keypad-grid { gap: 12px !important; margin-bottom: 20px !important; }
             .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } 
@@ -58,117 +43,110 @@
             .passcode-title { margin-bottom: 15px !important; }
         }
 
-        /* --- Left Side: Premium Polaroid Aesthetic --- */
-        /* Removed the hover rotation so it stays locked in place under her thumb */
+        /* Polaroid */
         .polaroid {
-            background: white; padding: 15px 15px 85px 15px; 
-            border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            position: relative; text-align: center; width: 260px;
-            transform: rotate(-2deg);
+            background: white; padding: 15px 15px 85px 15px; border-radius: 6px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; text-align: center; 
+            width: 260px; transform: rotate(-2deg);
         }
-        
-        .polaroid img {
-            width: 100%; aspect-ratio: 1/1; object-fit: cover; 
-            background-color: #eee; border-radius: 4px; pointer-events: none;
-        }
-        
-        .polaroid .caption {
-            color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%;
-            line-height: 1.2; padding: 0 10px;
-        }
-        
+        .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee; border-radius: 4px; pointer-events: none; }
+        .polaroid .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; line-height: 1.2; padding: 0 10px; }
         .caption .title { font-family: 'Dancing Script', cursive; font-size: 1.6rem; display: block; }
         
-        /* Floating 3D Bow */
         .bow {
-            position: absolute; top: -25px; left: -25px; font-size: 4rem; 
-            transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
-            animation: float 3s ease-in-out infinite; pointer-events: none;
+            position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); 
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; pointer-events: none;
         }
+        @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
 
-        @keyframes float {
-            0%, 100% { transform: rotate(-15deg) translateY(0); }
-            50% { transform: rotate(-15deg) translateY(-8px); }
-        }
-
-        /* --- Right Side: Keypad Aesthetic --- */
+        /* Keypad */
         .keypad-side { display: flex; flex-direction: column; align-items: center; }
         .passcode-title { font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
-        
-        /* Square Passcode Dots */
         .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
-        .dot { width: 22px; height: 22px; border: 2.5px solid #ff99aa; border-radius: 6px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .dot { width: 22px; height: 22px; border: 2.5px solid #ff99aa; border-radius: 6px; transition: all 0.3s ease; }
         .dot.active { background-color: #ff99aa; transform: scale(1.15); border-radius: 50%; }
-        
-        /* Shake Error Animation */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .shake { animation: shake 0.4s ease-in-out; }
         .shake .dot { border-color: white; background-color: transparent; }
-
-        /* Tactile Pink Circular Buttons */
         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-        .key {
-            width: 55px; height: 55px; border-radius: 50%; background: #ff99aa; border: none;
-            color: #ba1636; font-size: 1.5rem; font-weight: 700; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif;
-        }
+        .key { width: 55px; height: 55px; border-radius: 50%; background: #ff99aa; border: none; color: #ba1636; font-size: 1.5rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; }
         .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .enter-btn {
-            background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px;
-            border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px;
-        }
+        .enter-btn { background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* --- THE ENVELOPE SCREEN (NEW) --- */
-        .envelope-container {
-            position: relative; cursor: pointer; transition: transform 0.3s ease;
-        }
-        .envelope-container:active { transform: scale(0.95); }
+        /* --- RED ENVELOPE & LETTER CSS --- */
+        .env-title { font-family: 'Quicksand', serif; font-size: 1.8rem; font-weight: 700; color: #222; margin-bottom: 30px; letter-spacing: 0.5px; }
+        .env-instruction { margin-top: 40px; font-size: 0.9rem; color: #555; font-weight: 700; }
         
-        .envelope {
-            width: 300px; height: 200px; background-color: #e3c4a8;
-            position: relative; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        .envelope-wrapper {
+            position: relative; width: 300px; height: 200px; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* CSS drawing for the envelope flaps */
-        .envelope::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0;
+        /* The dark red back of the envelope */
+        .env-back {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #871418; border-radius: 4px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        /* The gorgeous sliding letter */
+        .env-letter {
+            position: absolute; bottom: 5px; left: 5px; width: 290px; height: 350px;
+            background: #fffdf8; border-radius: 6px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 30px 20px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center;
+            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 2;
+        }
+        
+        .letter-text {
+            font-family: 'Quicksand', sans-serif; font-size: 1.05rem; font-weight: 700;
+            color: #333; line-height: 1.6;
+        }
+        
+        .letter-text span { color: #ba1636; } /* Accent color for her */
+        
+        /* Front pockets of the red envelope */
+        .env-front {
+            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
+            border-left: 150px solid #9e1a1e; border-right: 150px solid #9e1a1e;
+            border-bottom: 110px solid #b31f24; border-radius: 0 0 4px 4px; z-index: 3;
+        }
+        
+        /* The opening flap */
+        .env-flap {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
             border-left: 150px solid transparent; border-right: 150px solid transparent;
-            border-top: 100px solid #d4b295; border-radius: 8px 8px 0 0; z-index: 3;
-        }
-        .envelope::after {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 0;
-            border-left: 150px solid #ecd3bd; border-right: 150px solid #ecd3bd;
-            border-bottom: 100px solid #ecd3bd; border-radius: 0 0 8px 8px; z-index: 2;
+            border-top: 120px solid #b31f24; transform-origin: top;
+            transition: transform 0.6s ease-in-out, z-index 0.1s; z-index: 4;
         }
         
-        /* The pulsating wax seal */
-        .wax-seal {
-            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-            width: 50px; height: 50px; background-color: #ba1636; border-radius: 50%;
-            z-index: 4; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        /* The gold/cream wax seal */
+        .env-seal {
+            position: absolute; top: 95px; left: 50%; transform: translateX(-50%);
+            width: 45px; height: 45px; background: #e8dcb9; border-radius: 50%;
+            z-index: 5; border: 2px solid #d4c295; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center;
-            animation: pulse 2s infinite;
+            transition: opacity 0.3s; animation: pulse 2s infinite;
         }
-        .wax-seal::after { content: '❤'; color: #ff99aa; font-size: 1.5rem; }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(186, 22, 54, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(186, 22, 54, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(186, 22, 54, 0); }
+        .env-seal::after { content: '🌿'; font-size: 1.2rem; filter: sepia(1) hue-rotate(-50deg) saturate(3); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(212, 194, 149, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(212, 194, 149, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 194, 149, 0); } }
+
+        /* Animation Trigger Classes */
+        .env-flap.open { transform: rotateX(180deg); z-index: 1; }
+        .env-seal.hidden { opacity: 0; }
+        /* Slides the letter perfectly out of the envelope */
+        .env-letter.pull { transform: translateY(-220px); }
+
+        /* The Next Button (Hidden initially) */
+        .continue-btn {
+            margin-top: 250px; padding: 10px 30px; background: #ba1636; color: white;
+            border: none; border-radius: 20px; font-family: 'Quicksand', sans-serif;
+            font-weight: 700; font-size: 1rem; opacity: 0; transition: opacity 1s ease;
+            cursor: pointer; pointer-events: none; z-index: 10;
         }
-        
-        .envelope-text {
-            margin-top: 40px; color: #ba1636; font-family: 'Dancing Script', cursive;
-            font-size: 2.5rem; text-align: center;
-        }
+        .continue-btn.show { opacity: 1; pointer-events: auto; }
+
     </style>
 </head>
 <body>
@@ -182,7 +160,6 @@
                     <span class="title">Congratulations for one year of our love</span>
                 </div>
             </div>
-
             <div class="keypad-side">
                 <h2 class="passcode-title">Enter a Passcode</h2>
                 <div class="dots-container" id="dots-container">
@@ -208,36 +185,50 @@
     </div>
 
     <div id="envelope-screen">
-        <div class="envelope-container" onclick="openEnvelope()">
-            <div class="envelope">
-                <div class="wax-seal"></div>
+        <h1 class="env-title">A Letter For you cutie!</h1>
+        
+        <div class="envelope-wrapper" onclick="openEnvelope()">
+            <div class="env-back"></div>
+            
+            <div class="env-letter" id="the-letter">
+                <p class="letter-text">
+                    One year ago, a prayer I never spoke was answered in the form of a <span>person</span>.<br><br>
+                    Since then, every season has carried a little more light, a little more warmth, and a little more gratitude.<br><br>
+                    Some blessings arrive quietly.<br><br>
+                    You were one of them.
+                </p>
             </div>
+            
+            <div class="env-front"></div>
+            <div class="env-flap" id="the-flap"></div>
+            <div class="env-seal" id="the-seal"></div>
         </div>
-        <div class="envelope-text">Tap to open</div>
+        
+        <p class="env-instruction" id="instruction-text">Tap on the Envelope to Open.</p>
+        
+        <button class="continue-btn" id="continue-btn" onclick="goToOcean()">There's more...</button>
     </div>
 
     <div id="main-content">
-        <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
-        <h1 style="font-family: 'Dancing Script', cursive; color: #ba1636; font-size: 3rem;">A beautiful bouquet is blooming...</h1>
-        <p style="margin-top: 10px; font-family: 'Quicksand', sans-serif;">(The scrollable letter goes here next!)</p>
+        <h2 style="font-family: 'Dancing Script'; color: #ba1636; font-size: 3rem;">Ocean & Flowers coming next!</h2>
     </div>
+
+    <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
 
     <script>
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
+        let isEnvelopeOpen = false;
+        
         const dots = document.querySelectorAll('.dot');
         const dotsContainer = document.getElementById('dots-container');
         const bgMusic = document.getElementById('bg-music');
-        
-        // Sets background music to 20% volume instantly
         bgMusic.volume = 0.2;
 
         function pressKey(num) {
             if (currentInput.length < 4) { currentInput += num; updateDots(); }
         }
-
         function clearCode() { currentInput = ""; updateDots(); }
-
         function updateDots() {
             dots.forEach((dot, index) => {
                 if (index < currentInput.length) dot.classList.add('active');
@@ -247,19 +238,12 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Success: Fade out lock screen, show envelope (No music yet!)
-                const lockScreen = document.getElementById('lock-screen');
-                const envScreen = document.getElementById('envelope-screen');
-                lockScreen.style.opacity = "0";
-                
+                document.getElementById('lock-screen').style.opacity = "0";
                 setTimeout(() => {
-                    lockScreen.style.display = "none";
+                    document.getElementById('lock-screen').style.display = "none";
+                    const envScreen = document.getElementById('envelope-screen');
                     envScreen.style.display = "flex";
-                    // Small delay ensures a smooth fade-in
-                    setTimeout(() => {
-                        envScreen.style.opacity = "1";
-                        envScreen.style.pointerEvents = "auto";
-                    }, 50);
+                    setTimeout(() => envScreen.style.opacity = "1", 50);
                 }, 800);
             } else {
                 dotsContainer.classList.add('shake');
@@ -267,22 +251,41 @@
             }
         }
 
+        // The Magic Animation Sequence
         function openEnvelope() {
-            // Trigger the soft music ONLY when the wax seal is tapped
-            bgMusic.play().catch(e => console.log("Audio play blocked by browser."));
+            if(isEnvelopeOpen) return;
+            isEnvelopeOpen = true;
             
-            const envScreen = document.getElementById('envelope-screen');
-            const mainContent = document.getElementById('main-content');
+            // Start the music
+            bgMusic.play().catch(e => console.log("Audio play blocked."));
             
-            // Fade out the envelope screen
-            envScreen.style.opacity = "0";
+            // Hide the instruction text and seal
+            document.getElementById('instruction-text').style.opacity = "0";
+            document.getElementById('the-seal').classList.add('hidden');
+            
+            // Flip the flap open
+            const flap = document.getElementById('the-flap');
+            flap.classList.add('open');
+            
+            // Wait slightly for flap to open, then slide letter up
             setTimeout(() => {
-                envScreen.style.display = "none";
+                document.getElementById('the-letter').classList.add('pull');
+            }, 500);
+            
+            // Wait 6 seconds for her to read the letter, then show the Continue button
+            setTimeout(() => {
+                document.getElementById('continue-btn').classList.add('show');
+            }, 6000);
+        }
+
+        // Transition to the next stage (Placeholder for now)
+        function goToOcean() {
+            document.getElementById('envelope-screen').style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById('envelope-screen').style.display = "none";
+                const mainContent = document.getElementById('main-content');
                 mainContent.style.display = "flex";
-                setTimeout(() => {
-                    mainContent.style.opacity = "1";
-                    mainContent.style.pointerEvents = "auto";
-                }, 50);
+                setTimeout(() => mainContent.style.opacity = "1", 50);
             }, 800);
         }
     </script>
