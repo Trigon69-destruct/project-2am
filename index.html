@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You</title>
-    <!-- Importing Premium Google Fonts -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap');
         
-        /* Base Reset & Deep Red Background */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             background-color: #ba1636; 
@@ -19,36 +17,41 @@
             height: 100vh; 
             overflow: hidden; 
             font-family: 'Quicksand', sans-serif;
+            /* Prevents weird text highlighting when tapping buttons */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        /* Full Screen Lock Overlay */
-        #lock-screen {
+        /* Full Screen Overlays */
+        #lock-screen, #envelope-screen, #main-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ba1636; z-index: 100;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
             transition: opacity 0.8s ease;
         }
+        
+        /* Hide upcoming screens by default */
+        #envelope-screen, #main-content { opacity: 0; display: none; pointer-events: none; }
+        
+        /* Layer priorities */
+        #lock-screen { background: #ba1636; z-index: 100; }
+        #envelope-screen { background: #fdf6e3; z-index: 90; }
+        #main-content { background: #f8e1e7; z-index: 80; color: #333; }
 
-        /* Container Layout */
         .lock-container {
             display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
             width: 100%; max-width: 800px; padding: 20px;
         }
 
-        /* --- THE BULLETPROOF MOBILE LAYOUT SHRINK --- */
         @media (max-width: 768px) {
             .lock-container { flex-direction: column; gap: 20px; }
             .polaroid { 
-                width: 210px !important; 
-                padding: 12px 12px 75px 12px !important; /* Kept wide enough at the bottom for the new text */
-                margin-top: 30px; 
+                width: 240px !important; /* UPSIZED POLAROID */
+                padding: 12px 12px 75px 12px !important; 
+                margin-top: 20px; 
                 margin-left: 10px; 
             }
-            .bow { 
-                left: -12px !important; 
-                top: -18px !important; 
-                font-size: 3rem !important; 
-            }
+            .bow { left: -15px !important; top: -20px !important; font-size: 3.5rem !important; }
             .keypad-grid { gap: 12px !important; margin-bottom: 20px !important; }
             .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } 
             .dots-container { margin-bottom: 25px !important; }
@@ -56,41 +59,31 @@
         }
 
         /* --- Left Side: Premium Polaroid Aesthetic --- */
+        /* Removed the hover rotation so it stays locked in place under her thumb */
         .polaroid {
             background: white; padding: 15px 15px 85px 15px; 
             border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            position: relative; text-align: center; width: 240px;
+            position: relative; text-align: center; width: 260px;
             transform: rotate(-2deg);
-            transition: transform 0.3s ease;
         }
-        
-        .polaroid:hover { transform: rotate(0deg) scale(1.02); }
         
         .polaroid img {
             width: 100%; aspect-ratio: 1/1; object-fit: cover; 
-            background-color: #eee; border-radius: 4px;
+            background-color: #eee; border-radius: 4px; pointer-events: none;
         }
         
-        /* Premium Text Layout */
         .polaroid .caption {
-            color: #ba1636; 
-            position: absolute; bottom: 15px; left: 0; width: 100%;
-            line-height: 1.2;
-            padding: 0 10px; /* Keeps text from touching the absolute edges */
+            color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%;
+            line-height: 1.2; padding: 0 10px;
         }
         
-        .caption .title {
-            font-family: 'Dancing Script', cursive; 
-            font-size: 1.6rem; /* Scaled perfectly to fit the space in a beautiful wrapped layout */
-            display: block;
-        }
+        .caption .title { font-family: 'Dancing Script', cursive; font-size: 1.6rem; display: block; }
         
         /* Floating 3D Bow */
         .bow {
             position: absolute; top: -25px; left: -25px; font-size: 4rem; 
-            transform: rotate(-15deg);
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
-            animation: float 3s ease-in-out infinite;
+            transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite; pointer-events: none;
         }
 
         @keyframes float {
@@ -100,25 +93,12 @@
 
         /* --- Right Side: Keypad Aesthetic --- */
         .keypad-side { display: flex; flex-direction: column; align-items: center; }
+        .passcode-title { font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
         
-        .passcode-title {
-            font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; 
-            letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
-        }
-        
-        /* Square Passcode Dots with Smooth Morph */
+        /* Square Passcode Dots */
         .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
-        
-        .dot {
-            width: 22px; height: 22px; border: 2.5px solid #ff99aa; 
-            border-radius: 6px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        .dot.active { 
-            background-color: #ff99aa; 
-            transform: scale(1.15); 
-            border-radius: 50%; 
-        }
+        .dot { width: 22px; height: 22px; border: 2.5px solid #ff99aa; border-radius: 6px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .dot.active { background-color: #ff99aa; transform: scale(1.15); border-radius: 50%; }
         
         /* Shake Error Animation */
         @keyframes shake {
@@ -131,61 +111,83 @@
 
         /* Tactile Pink Circular Buttons */
         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-        
         .key {
             width: 55px; height: 55px; border-radius: 50%; background: #ff99aa; border: none;
             color: #ba1636; font-size: 1.5rem; font-weight: 700; cursor: pointer;
             display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: all 0.15s ease;
-            font-family: 'Quicksand', sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif;
         }
-        
         .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* The Pill-Shaped Enter Button */
         .enter-btn {
             background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px;
             border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: all 0.15s ease;
-            font-family: 'Quicksand', sans-serif;
-            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px;
         }
-        
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* Main Content (Hidden until unlocked) */
-        #main-content { display: none; background-color: #fdf6e3; width: 100%; height: 100%; justify-content: center; align-items: center; flex-direction: column; color: #333; }
+        /* --- THE ENVELOPE SCREEN (NEW) --- */
+        .envelope-container {
+            position: relative; cursor: pointer; transition: transform 0.3s ease;
+        }
+        .envelope-container:active { transform: scale(0.95); }
+        
+        .envelope {
+            width: 300px; height: 200px; background-color: #e3c4a8;
+            position: relative; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        /* CSS drawing for the envelope flaps */
+        .envelope::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-left: 150px solid transparent; border-right: 150px solid transparent;
+            border-top: 100px solid #d4b295; border-radius: 8px 8px 0 0; z-index: 3;
+        }
+        .envelope::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 0;
+            border-left: 150px solid #ecd3bd; border-right: 150px solid #ecd3bd;
+            border-bottom: 100px solid #ecd3bd; border-radius: 0 0 8px 8px; z-index: 2;
+        }
+        
+        /* The pulsating wax seal */
+        .wax-seal {
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; background-color: #ba1636; border-radius: 50%;
+            z-index: 4; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        .wax-seal::after { content: '❤'; color: #ff99aa; font-size: 1.5rem; }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(186, 22, 54, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(186, 22, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(186, 22, 54, 0); }
+        }
+        
+        .envelope-text {
+            margin-top: 40px; color: #ba1636; font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem; text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <!-- PASSCODE LOCK SCREEN -->
     <div id="lock-screen">
         <div class="lock-container">
-            
-            <!-- Polaroid Image Side -->
             <div class="polaroid">
                 <div class="bow">🎀</div>
-                <!-- Image source waiting for your upload -->
-                <img src="sweetu.jpg" alt="My Sweetu" id="lock-photo" onerror="this.src='https://via.placeholder.com/200/cccccc/ffffff?text=Upload+Photo'">
+                <img src="sweetu.jpg" alt="My Sweetu">
                 <div class="caption">
                     <span class="title">Congratulations for one year of our love</span>
                 </div>
             </div>
 
-            <!-- Keypad Side -->
             <div class="keypad-side">
                 <h2 class="passcode-title">Enter a Passcode</h2>
-                
                 <div class="dots-container" id="dots-container">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
-
                 <div class="keypad-grid">
                     <button class="key" onclick="pressKey('1')">1</button>
                     <button class="key" onclick="pressKey('2')">2</button>
@@ -200,66 +202,88 @@
                     <button class="key" onclick="pressKey('0')">0</button>
                     <button class="key" onclick="clearCode()">#</button>
                 </div>
-                
                 <button class="enter-btn" onclick="checkPasscode()">Enter</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN ENVELOPE CONTENT -->
-    <div id="main-content">
-        <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
-        <h2>Envelope Interface Loading...</h2>
+    <div id="envelope-screen">
+        <div class="envelope-container" onclick="openEnvelope()">
+            <div class="envelope">
+                <div class="wax-seal"></div>
+            </div>
+        </div>
+        <div class="envelope-text">Tap to open</div>
     </div>
 
-    <!-- LOGIC SCRIPT -->
+    <div id="main-content">
+        <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
+        <h1 style="font-family: 'Dancing Script', cursive; color: #ba1636; font-size: 3rem;">A beautiful bouquet is blooming...</h1>
+        <p style="margin-top: 10px; font-family: 'Quicksand', sans-serif;">(The scrollable letter goes here next!)</p>
+    </div>
+
     <script>
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
         const dotsContainer = document.getElementById('dots-container');
         const bgMusic = document.getElementById('bg-music');
+        
+        // Sets background music to 20% volume instantly
+        bgMusic.volume = 0.2;
 
         function pressKey(num) {
-            if (currentInput.length < 4) {
-                currentInput += num;
-                updateDots();
-            }
+            if (currentInput.length < 4) { currentInput += num; updateDots(); }
         }
 
-        function clearCode() {
-            currentInput = "";
-            updateDots();
-        }
+        function clearCode() { currentInput = ""; updateDots(); }
 
         function updateDots() {
             dots.forEach((dot, index) => {
-                if (index < currentInput.length) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
+                if (index < currentInput.length) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
         }
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Success: Play music and fade out
-                bgMusic.play().catch(e => console.log("Waiting for audio file."));
+                // Success: Fade out lock screen, show envelope (No music yet!)
                 const lockScreen = document.getElementById('lock-screen');
+                const envScreen = document.getElementById('envelope-screen');
                 lockScreen.style.opacity = "0";
+                
                 setTimeout(() => {
                     lockScreen.style.display = "none";
-                    document.getElementById('main-content').style.display = "flex";
+                    envScreen.style.display = "flex";
+                    // Small delay ensures a smooth fade-in
+                    setTimeout(() => {
+                        envScreen.style.opacity = "1";
+                        envScreen.style.pointerEvents = "auto";
+                    }, 50);
                 }, 800);
             } else {
-                // Error: Trigger shake animation and clear
                 dotsContainer.classList.add('shake');
-                setTimeout(() => {
-                    dotsContainer.classList.remove('shake');
-                    clearCode();
-                }, 500);
+                setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500);
             }
+        }
+
+        function openEnvelope() {
+            // Trigger the soft music ONLY when the wax seal is tapped
+            bgMusic.play().catch(e => console.log("Audio play blocked by browser."));
+            
+            const envScreen = document.getElementById('envelope-screen');
+            const mainContent = document.getElementById('main-content');
+            
+            // Fade out the envelope screen
+            envScreen.style.opacity = "0";
+            setTimeout(() => {
+                envScreen.style.display = "none";
+                mainContent.style.display = "flex";
+                setTimeout(() => {
+                    mainContent.style.opacity = "1";
+                    mainContent.style.pointerEvents = "auto";
+                }, 50);
+            }, 800);
         }
     </script>
 </body>
