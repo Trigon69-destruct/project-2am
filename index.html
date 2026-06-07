@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@500;700&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -25,7 +25,7 @@
         
         /* Layer backgrounds */
         #lock-screen { background: #ba1636; z-index: 100; }
-        #envelope-screen { background: #f4ece4; z-index: 90; color: #333; } 
+        #envelope-screen { background: #e9dfd1; z-index: 90; color: #333; } /* Moody warm beige */
         #main-content { background: #f8e1e7; z-index: 80; color: #333; }
 
         .lock-container {
@@ -74,85 +74,87 @@
         .enter-btn { background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* --- ROCK-SOLID 3D ENVELOPE DESIGN --- */
-        .env-title { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 700; color: #222; margin-bottom: 40px; letter-spacing: 0.5px; }
-        .env-instruction { margin-top: 40px; font-size: 0.9rem; color: #555; font-weight: 700; transition: opacity 0.3s; }
+        /* --- BULLETPROOF 3D ENVELOPE DESIGN --- */
+        .env-title { 
+            font-family: 'Playfair Display', serif; /* Matched the IG Video font */
+            font-size: 2.2rem; font-weight: 700; color: #1a1a1a; 
+            margin-bottom: 40px; letter-spacing: 0.5px; 
+        }
+        .env-instruction { margin-top: 50px; font-size: 0.85rem; color: #444; font-weight: 700; transition: opacity 0.3s; letter-spacing: 1px; text-transform: uppercase; }
         
-        /* Perspective frame for 3D rotations */
         .envelope-wrapper {
-            position: relative; width: 300px; height: 200px;
-            perspective: 1000px; cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            position: relative; width: 320px; height: 220px;
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
         }
         
-        .envelope-body {
-            position: absolute; width: 100%; height: 100%;
-            background: #9e1a1e; border-radius: 6px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-            z-index: 1;
-        }
-
-        /* Diagonal pocket panels using solid angles */
-        .envelope-body::before {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(32deg, #b31f24 50%, transparent 50%),
-                        linear-gradient(-32deg, #b31f24 50%, transparent 50%);
-            border-radius: 0 0 6px 6px; z-index: 3;
-        }
-
-        /* Front lower pocket lip */
-        .envelope-body::after {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 55%;
-            background: #a61c20; border-radius: 0 0 6px 6px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.08); z-index: 4;
+        /* Dark red back interior of the envelope */
+        .env-base {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #5c0a0c; border-radius: 4px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 1;
         }
         
         /* The sliding letter card */
         .env-letter {
-            position: absolute; bottom: 10px; left: 10px; width: 280px; height: 180px;
+            position: absolute; bottom: 10px; left: 15px; width: 290px; height: 190px;
             background: #fffdf8; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 25px 15px; text-align: center;
+            padding: 30px 20px; text-align: center;
             display: flex; flex-direction: column; justify-content: center;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), height 0.8s; 
             z-index: 2; overflow: hidden;
         }
         
         .letter-text {
-            font-family: 'Quicksand', sans-serif; font-size: 1rem; font-weight: 700;
-            color: #333; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease;
+            font-family: 'Quicksand', sans-serif; font-size: 1.05rem; font-weight: 700;
+            color: #333; line-height: 1.6; opacity: 0; transition: opacity 0.5s ease;
         }
         .letter-text span { color: #ba1636; } 
         
-        /* 3D Rotating Top Flap */
-        .env-flap {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #b31f24; clip-path: polygon(0 0, 50% 55%, 100% 0);
-            transform-origin: top; transform: rotateX(0deg);
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 6px 6px 0 0; z-index: 5;
+        /* Foolproof CSS Borders for Envelope Pockets (No white gaps) */
+        .env-front-left {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-top: 110px solid transparent; border-bottom: 110px solid transparent;
+            border-left: 160px solid #8e1418; z-index: 3; border-radius: 4px 0 0 4px;
+        }
+        .env-front-right {
+            position: absolute; top: 0; right: 0; width: 0; height: 0;
+            border-top: 110px solid transparent; border-bottom: 110px solid transparent;
+            border-right: 160px solid #8e1418; z-index: 3; border-radius: 0 4px 4px 0;
+        }
+        .env-front-bottom {
+            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
+            border-left: 160px solid transparent; border-right: 160px solid transparent;
+            border-bottom: 120px solid #a3191d; z-index: 4; border-radius: 0 0 4px 4px;
         }
         
-        /* Premium Wax Seal Link */
-        .env-seal {
-            position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
-            width: 45px; height: 45px; background: #e8dcb9; border-radius: 50%;
-            z-index: 6; border: 2px solid #d4c295; box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.4s ease, opacity 0.3s; animation: pulse 2s infinite;
+        /* 3D Rotating Top Flap */
+        .env-flap {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-left: 160px solid transparent; border-right: 160px solid transparent;
+            border-top: 130px solid #b51c22;
+            transform-origin: top; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s;
+            z-index: 5;
         }
-        .env-seal::after { content: '🌿'; font-size: 1.1rem; filter: sepia(1) hue-rotate(-50deg) saturate(2.5); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(212, 194, 149, 0.6); } 70% { box-shadow: 0 0 0 12px rgba(212, 194, 149, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 194, 149, 0); } }
+        
+        /* Premium Wax Seal */
+        .env-seal {
+            position: absolute; top: 105px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; background: #f2e3be; border-radius: 50%;
+            z-index: 6; border: 2px solid #e0c88b; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.3s; animation: pulse 2s infinite; pointer-events: none;
+        }
+        .env-seal::after { content: '🌿'; font-size: 1.3rem; filter: sepia(1) hue-rotate(-30deg) saturate(2); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224, 200, 139, 0.6); } 70% { box-shadow: 0 0 0 12px rgba(224, 200, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(224, 200, 139, 0); } }
 
         /* Animation States */
         .envelope-wrapper.open .env-flap { transform: rotateX(180deg); z-index: 1; }
-        .envelope-wrapper.open .env-seal { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.5); }
-        
-        /* Card Expansion Settings */
-        .envelope-wrapper.open .env-letter { height: 340px; transform: translateY(-200px); z-index: 10; }
+        .envelope-wrapper.open .env-seal { opacity: 0; }
+        .envelope-wrapper.open .env-letter { height: 380px; transform: translateY(-240px); z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         .envelope-wrapper.open .letter-text { opacity: 1; transition-delay: 0.5s; }
 
         .continue-btn {
-            margin-top: 240px; padding: 12px 35px; background: #ba1636; color: white;
+            margin-top: 250px; padding: 12px 35px; background: #ba1636; color: white;
             border: none; border-radius: 25px; font-family: 'Quicksand', sans-serif;
             font-weight: 700; font-size: 1rem; opacity: 0; transition: all 0.5s ease;
             cursor: pointer; pointer-events: none; z-index: 20; box-shadow: 0 4px 15px rgba(186,22,54,0.2);
@@ -200,7 +202,7 @@
         <h1 class="env-title">A Letter For you cutie!</h1>
         
         <div class="envelope-wrapper" id="env-wrapper" onclick="openEnvelope()">
-            <div class="envelope-body"></div>
+            <div class="env-base"></div>
             
             <div class="env-letter" id="the-letter">
                 <p class="letter-text" id="l-text">
@@ -211,6 +213,9 @@
                 </p>
             </div>
             
+            <div class="env-front-left"></div>
+            <div class="env-front-right"></div>
+            <div class="env-front-bottom"></div>
             <div class="env-flap"></div>
             <div class="env-seal"></div>
         </div>
@@ -253,6 +258,8 @@
                     document.getElementById('lock-screen').style.display = "none";
                     const envScreen = document.getElementById('envelope-screen');
                     envScreen.style.display = "flex";
+                    // RESTORED THE CRITICAL LINE HERE: Re-enables clicking!
+                    envScreen.style.pointerEvents = "auto"; 
                     setTimeout(() => envScreen.style.opacity = "1", 50);
                 }, 800);
             } else {
@@ -268,13 +275,13 @@
             bgMusic.play().catch(e => console.log("Audio waiting..."));
             document.getElementById('instruction-text').style.opacity = "0";
             
-            // Re-engineered 3D layout flip
+            // Triggers the CSS animations
             document.getElementById('env-wrapper').classList.add('open');
             
             // Fades the button in safely after card completes slide path
             setTimeout(() => {
                 document.getElementById('continue-btn').classList.add('show');
-            }, 4500);
+            }, 4000);
         }
 
         function goToOcean() {
@@ -283,6 +290,7 @@
                 document.getElementById('envelope-screen').style.display = "none";
                 const mainContent = document.getElementById('main-content');
                 mainContent.style.display = "flex";
+                mainContent.style.pointerEvents = "auto";
                 setTimeout(() => mainContent.style.opacity = "1", 50);
             }, 800);
         }
