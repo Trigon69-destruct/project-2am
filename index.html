@@ -17,9 +17,7 @@
             touch-action: manipulation;
         }
 
-        /* =============================================
-           STAGE SYSTEM — single full-screen layers
-           ============================================= */
+        /* --- STAGE SYSTEM --- */
         .stage {
             position: fixed;
             inset: 0;
@@ -32,13 +30,10 @@
             transition: opacity 1.2s ease;
             will-change: opacity;
         }
-        .stage.hidden   { opacity: 0; pointer-events: none; visibility: hidden; }
-        .stage.visible  { opacity: 1; pointer-events: auto; visibility: visible; }
-        .stage.fading   { opacity: 0; pointer-events: none; }
+        .stage.hidden   { opacity: 0; pointer-events: none; display: none; }
+        .stage.visible  { opacity: 1; pointer-events: auto; display: flex; }
 
-        /* =============================================
-           STAGE 1 — LOCK SCREEN
-           ============================================= */
+        /* --- STAGE 1: LOCK SCREEN --- */
         #lock-screen {
             background: #ba1636;
             z-index: 100;
@@ -55,7 +50,6 @@
             padding: 20px 30px;
         }
 
-        /* Polaroid */
         .polaroid {
             background: white;
             padding: 14px 14px 80px 14px;
@@ -98,14 +92,12 @@
             filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.35));
             animation: float 3s ease-in-out infinite;
             pointer-events: none;
-            user-select: none;
         }
         @keyframes float {
             0%,100% { transform: rotate(-15deg) translateY(0); }
             50%      { transform: rotate(-15deg) translateY(-8px); }
         }
 
-        /* Keypad side */
         .keypad-side {
             display: flex;
             flex-direction: column;
@@ -142,22 +134,14 @@
             40%,80%  { transform: translateX(9px); }
         }
         .shake { animation: shake 0.42s ease-in-out; }
-        .shake .dot { background: transparent !important; border-color: white !important; }
 
-        /* THE FIX: keypad grid — no inherited pointer-events blocking */
         .keypad-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 22px;
-            /* Ensure the grid itself never steals touch from buttons */
-            pointer-events: none;
         }
-        /* THE FIX: explicit touch-action on every interactive element */
         .key, .enter-btn {
-            pointer-events: auto;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
             cursor: pointer;
             user-select: none;
             -webkit-user-select: none;
@@ -176,15 +160,11 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-            /* Prevent double-tap zoom on mobile */
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
             touch-action: manipulation;
         }
-        .key:active, .key.pressed {
-            transform: scale(0.88);
-            background: #ffb3c1;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        .key:active { transform: scale(0.88); background: #ffb3c1; }
+        
         .enter-btn {
             background: #ff99aa;
             color: #ba1636;
@@ -194,15 +174,11 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            transition: transform 0.12s ease;
             touch-action: manipulation;
         }
-        .enter-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        .enter-btn:active { transform: scale(0.95); }
 
-        /* Mobile layout for lock screen */
         @media (max-width: 680px) {
             .lock-container { flex-direction: column; gap: 18px; padding: 15px; }
             .polaroid { width: 210px; padding: 12px 12px 70px 12px; }
@@ -210,12 +186,9 @@
             .bow { font-size: 3.2rem; top: -22px; left: -18px; }
             .key { width: 50px; height: 50px; font-size: 1.3rem; }
             .keypad-grid { gap: 13px; }
-            .passcode-title { font-size: 0.85rem; }
         }
 
-        /* =============================================
-           STAGE 2 — ENVELOPE SCREEN
-           ============================================= */
+        /* --- STAGE 2: ENVELOPE SCREEN --- */
         #envelope-screen {
             background-color: #e9dfd1;
             background-image: radial-gradient(rgba(0,0,0,0.045) 1px, transparent 1px);
@@ -230,26 +203,18 @@
             font-weight: 700;
             color: #1a1a1a;
             margin-bottom: 45px;
-            letter-spacing: 0.3px;
             text-align: center;
             padding: 0 20px;
-            transition: opacity 0.5s ease;
         }
 
-        /* Envelope wrapper — perspective container */
         .envelope-perspective {
             position: relative;
             width: 320px;
             height: 220px;
             perspective: 1000px;
             cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            flex-shrink: 0;
         }
 
-        /* All envelope pieces */
         .envelope-body {
             position: absolute; inset: 0;
             transition: transform 1.2s cubic-bezier(0.4,0,0.2,1), opacity 0.8s;
@@ -269,7 +234,6 @@
             width: 290px; height: 190px;
             z-index: 2;
             overflow: hidden;
-            pointer-events: none;
         }
         .env-letter-card {
             width: 100%; height: 100%;
@@ -282,16 +246,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transform: translateY(0);
-            transition:
-                transform 1s cubic-bezier(0.25,1,0.5,1),
-                width 1.2s ease,
-                height 1.2s ease,
-                border-radius 1.2s ease,
-                padding 1.2s ease,
-                top 1.2s ease,
-                left 1.2s ease,
-                box-shadow 1.2s ease;
+            transition: transform 1s ease, width 1.2s, height 1.2s;
         }
         .letter-text {
             font-family: 'Quicksand', sans-serif;
@@ -301,106 +256,36 @@
             line-height: 1.75;
             opacity: 0;
             transition: opacity 0.6s ease;
-            max-width: 420px;
-            margin: 0 auto;
         }
         .letter-text span { color: #ba1636; font-weight: 700; }
 
-        /* Envelope triangles */
-        .env-front-left {
-            position: absolute; top: 0; left: 0;
-            width: 0; height: 0;
-            border-top: 110px solid transparent;
-            border-bottom: 110px solid transparent;
-            border-left: 160px solid #8e1418;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .env-front-right {
-            position: absolute; top: 0; right: 0;
-            width: 0; height: 0;
-            border-top: 110px solid transparent;
-            border-bottom: 110px solid transparent;
-            border-right: 160px solid #8e1418;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .env-front-bottom {
-            position: absolute; bottom: 0; left: 0;
-            width: 0; height: 0;
-            border-left: 160px solid transparent;
-            border-right: 160px solid transparent;
-            border-bottom: 120px solid #a3191d;
-            z-index: 4;
-            pointer-events: none;
-        }
-        .env-flap {
-            position: absolute; top: 0; left: 0;
-            width: 0; height: 0;
-            border-left: 160px solid transparent;
-            border-right: 160px solid transparent;
-            border-top: 130px solid #b51c22;
-            transform-origin: top center;
-            transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
-            z-index: 5;
-            pointer-events: none;
-        }
+        .env-front-left { position: absolute; top: 0; left: 0; width: 0; height: 0; border-top: 110px solid transparent; border-bottom: 110px solid transparent; border-left: 160px solid #8e1418; z-index: 3; }
+        .env-front-right { position: absolute; top: 0; right: 0; width: 0; height: 0; border-top: 110px solid transparent; border-bottom: 110px solid transparent; border-right: 160px solid #8e1418; z-index: 3; }
+        .env-front-bottom { position: absolute; bottom: 0; left: 0; width: 0; height: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-bottom: 120px solid #a3191d; z-index: 4; }
+        .env-flap { position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-top: 130px solid #b51c22; transform-origin: top center; transition: transform 0.65s ease; z-index: 5; }
+        
         .env-seal {
-            position: absolute;
-            top: 105px; left: 50%;
-            transform: translateX(-50%);
-            width: 50px; height: 50px;
-            background: #f2e3be;
-            border-radius: 50%;
-            z-index: 6;
-            border: 2px solid #e0c88b;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.3s ease, transform 0.4s ease;
-            animation: sealPulse 2s infinite;
-            pointer-events: none;
+            position: absolute; top: 105px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; background: #f2e3be; border-radius: 50%; z-index: 6;
+            border: 2px solid #e0c88b; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
         }
-        .env-seal::after { content: '🌿'; font-size: 1.3rem; filter: sepia(1) hue-rotate(-30deg) saturate(2); }
-        @keyframes sealPulse {
-            0%   { box-shadow: 0 0 0 0 rgba(224,200,139,0.6); }
-            70%  { box-shadow: 0 0 0 13px rgba(224,200,139,0); }
-            100% { box-shadow: 0 0 0 0 rgba(224,200,139,0); }
-        }
+        .env-seal::after { content: '🌿'; font-size: 1.3rem; }
 
-        .env-instruction {
-            margin-top: 40px;
-            font-size: 0.82rem;
-            color: #555;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            transition: opacity 0.4s ease;
-            user-select: none;
-        }
-
-        /* --- Envelope open states --- */
-        .envelope-perspective.open .env-flap    { transform: rotateX(180deg); z-index: 1; }
-        .envelope-perspective.open .env-seal    { opacity: 0; transform: translateX(-50%) scale(0.5); }
+        /* Animation triggers */
+        .envelope-perspective.open .env-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-perspective.open .env-seal { opacity: 0; }
         .envelope-perspective.open .env-letter-card { transform: translateY(-72%); }
-        .envelope-perspective.open .letter-text { opacity: 1; transition-delay: 0.55s; }
+        .envelope-perspective.open .letter-text { opacity: 1; transition-delay: 0.5s; }
 
-        /* --- Final expand: letter fills screen --- */
         .envelope-perspective.final-expand .envelope-body { transform: translateY(120px) scale(0.75); opacity: 0; }
         .envelope-perspective.final-expand .env-letter-pocket { overflow: visible; z-index: 200; }
         .envelope-perspective.final-expand .env-letter-card {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100dvh;
-            border-radius: 0;
-            padding: 80px 40px;
-            transform: translateY(0);
-            box-shadow: none;
-            z-index: 200;
+            position: fixed; inset: 0; width: 100vw; height: 100dvh; border-radius: 0; padding: 80px 40px; z-index: 200;
         }
-        .envelope-perspective.final-expand .letter-text { font-size: 1.2rem; line-height: 1.9; }
+        .envelope-perspective.final-expand .letter-text { font-size: 1.2rem; }
+
+        .env-instruction { margin-top: 40px; font-size: 0.82rem; color: #555; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
 
         @media (max-width: 680px) {
             .envelope-perspective { width: 285px; height: 196px; }
@@ -410,169 +295,162 @@
             .env-flap        { border-left-width: 142px; border-right-width: 142px; border-top-width: 116px; }
             .env-letter-pocket { width: 258px; }
             .env-title { font-size: 1.6rem; margin-bottom: 30px; }
-            .envelope-perspective.final-expand .letter-text { font-size: 1.05rem; }
         }
 
-        /* =============================================
-           STAGE 3 — BOUQUET OVERLAY
-           ============================================= */
+        /* --- STAGE 3: BOUQUET OVERLAY --- */
         #bouquet-overlay {
             background-color: #f7e6e9;
             z-index: 200;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
         }
-
         .bouquet-bloom {
-            width: min(85vw, 420px);
-            height: min(85vw, 420px);
-            background-image: url('flower-heart.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            transform: scale(0);
-            transition: transform 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 12px 35px rgba(186,22,54,0.15));
-            user-select: none;
-            pointer-events: none;
+            width: min(85vw, 420px); height: min(85vw, 420px);
+            background-image: url('flower-heart.png'); background-size: contain; background-repeat: no-repeat; background-position: center;
+            transform: scale(0); transition: transform 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #bouquet-overlay.active .bouquet-bloom { transform: scale(1); }
-
-        .tap-prompt-bloom {
-            position: absolute;
-            bottom: 55px; left: 0; right: 0;
-            text-align: center;
-            font-family: 'Dancing Script', cursive;
-            font-size: 2.1rem;
-            color: #ba1636;
-            opacity: 0;
-            transition: opacity 0.6s ease 1.2s;
-            pointer-events: none;
-            user-select: none;
-        }
+        .tap-prompt-bloom { position: absolute; bottom: 55px; text-align: center; font-family: 'Dancing Script', cursive; font-size: 2.1rem; color: #ba1636; opacity: 0; transition: opacity 0.6s ease 1.2s; }
         #bouquet-overlay.active .tap-prompt-bloom { opacity: 1; }
 
-        /* =============================================
-           STAGE 4 — GRAND REVEAL (Ocean + Map)
-           ============================================= */
+        /* --- STAGE 4: GRAND REVEAL --- */
         #grand-reveal {
             background-color: #f7e6e9;
             z-index: 80;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            align-items: flex-start;
-            justify-content: flex-start;
+            overflow-y: auto; overflow-x: hidden;
+            align-items: flex-start; justify-content: flex-start;
         }
+        .bubble { position: fixed; border-radius: 50%; background: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.2); pointer-events: none; animation: riseBubble linear infinite; }
+        @keyframes riseBubble { 0% { transform: translateY(110vh) scale(1); opacity: 0.6; } 100% { transform: translateY(-10vh) scale(0.5); opacity: 0; } }
 
-        /* Floating bubbles */
-        .bubble {
-            position: fixed;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.45);
-            border: 1px solid rgba(255,255,255,0.2);
-            pointer-events: none;
-            animation: riseBubble linear infinite;
-        }
-        @keyframes riseBubble {
-            0%   { transform: translateY(0) scale(1); opacity: 0.6; }
-            100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
-        }
+        .ocean-container { width: 100%; max-width: 1100px; padding: 90px 22px 180px 22px; display: flex; flex-direction: column; align-items: center; margin: 0 auto; }
+        .reveal-headline { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 6vw, 3.2rem); color: #ba1636; text-align: center; margin-bottom: 25px; }
+        .reveal-subtext { width: 90%; max-width: 580px; text-align: center; line-height: 1.9; font-weight: 600; color: #555; margin-bottom: 70px; }
 
-        /* Ocean content */
-        .ocean-container {
-            width: 100%;
-            max-width: 1100px;
-            padding: 90px 22px 180px 22px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 auto;
-        }
-
-        .reveal-headline {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 6vw, 3.2rem);
-            color: #ba1636;
-            text-align: center;
-            margin-bottom: 25px;
-            line-height: 1.2;
-        }
-        .reveal-subtext {
-            width: 90%;
-            max-width: 580px;
-            text-align: center;
-            line-height: 1.9;
-            font-weight: 600;
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 70px;
-        }
-
-        /* Map card */
-        .map-section {
-            width: 100%;
-            max-width: 780px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(186,22,54,0.1);
-            padding: 40px 30px;
-            text-align: center;
-            margin-bottom: 80px;
-            position: relative;
-        }
-        .map-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.75rem;
-            color: #ba1636;
-            margin-bottom: 8px;
-        }
-        .ldr-locations {
-            font-size: 1.05rem;
-            color: #333;
-            font-weight: 700;
-            margin-bottom: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+        .map-section { width: 100%; max-width: 780px; background: white; border-radius: 16px; box-shadow: 0 20px 50px rgba(186,22,54,0.1); padding: 40px 30px; text-align: center; margin-bottom: 80px; position: relative; }
+        .map-title { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #ba1636; margin-bottom: 8px; }
+        .ldr-locations { font-size: 1.05rem; color: #333; font-weight: 700; margin-bottom: 28px; display: flex; align-items: center; justify-content: center; gap: 12px; }
         .ldr-locations span { color: #8e1418; }
-
-        .map-connection {
-            width: 100%;
-            height: 240px;
-            background: #fdf8f5;
-            border-radius: 10px;
-            border: 1px solid #f0e8e0;
-            position: relative;
-            overflow: hidden;
-        }
-        /* Dotted SVG arc path */
-        .flight-path-svg {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-        }
-        .city-pin {
-            position: absolute;
-            top: 115px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            z-index: 3;
-        }
+        
+        .map-connection { width: 100%; height: 240px; background: #fdf8f5; border-radius: 10px; border: 1px solid #f0e8e0; position: relative; overflow: hidden; }
+        .flight-path { position: absolute; top: 100px; left: 10%; width: 80%; height: 50px; background: url("data:image/svg+xml,%3Csvg width='100%25' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 10 40 Q 150 -10, 290 40' stroke='%23ba1636' stroke-width='2' stroke-dasharray='5 5' fill='none'/%3E%3C/svg%3E") no-repeat center; background-size: cover; }
+        
+        .city-pin { position: absolute; top: 115px; display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 3; }
         .city-pin.deo { left: 9%; }
         .city-pin.pry { right: 9%; }
-        .pin-heart { font-size: 1.3rem; animation: heartPulse 2s ease-in-out infinite; }
-        .pin-label {
-            font-size: 0.78rem;
-            color: white;
-            background: #ba1636;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight:
+        .pin-heart { font-size: 1.3rem; }
+        .pin-label { font-size: 0.78rem; color: white; background: #ba1636; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+        .distance-heart { font-size: 2.5rem; position: absolute; top: 75px; left: 50%; transform: translateX(-50%); }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen" class="stage visible">
+        <div class="lock-container">
+            <div class="polaroid">
+                <div class="bow">🎀</div>
+                <img src="sweetu.jpg" alt="My Sweetu">
+                <div class="caption">
+                    <span class="title">Congratulations for one year of our love</span>
+                </div>
+            </div>
+            <div class="keypad-side">
+                <h2 class="passcode-title">Enter a Passcode</h2>
+                <div class="dots-container" id="dots-container">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
+                <div class="keypad-grid">
+                    <button class="key" onclick="pressKey('1')">1</button>
+                    <button class="key" onclick="pressKey('2')">2</button>
+                    <button class="key" onclick="pressKey('3')">3</button>
+                    <button class="key" onclick="pressKey('4')">4</button>
+                    <button class="key" onclick="pressKey('5')">5</button>
+                    <button class="key" onclick="pressKey('6')">6</button>
+                    <button class="key" onclick="pressKey('7')">7</button>
+                    <button class="key" onclick="pressKey('8')">8</button>
+                    <button class="key" onclick="pressKey('9')">9</button>
+                    <button class="key" onclick="clearCode()">*</button>
+                    <button class="key" onclick="pressKey('0')">0</button>
+                    <button class="key" onclick="clearCode()">#</button>
+                </div>
+                <button class="enter-btn" onclick="checkPasscode()">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="envelope-screen" class="stage hidden">
+        <h1 class="env-title">A Letter For you cutie!</h1>
+        <div class="envelope-perspective" id="env-wrapper" onclick="openEnvelope()">
+            <div class="envelope-body">
+                <div class="env-base"></div>
+                <div class="env-letter-pocket">
+                    <div class="env-letter-card" id="the-letter">
+                        <p class="letter-text">
+                            One year ago, a prayer I never spoke was answered in the form of a <span>person</span>.<br><br>
+                            Since then, every season has carried a little more light, a little more warmth, and a little more gratitude.<br><br>
+                            Some blessings arrive quietly.<br><br>
+                            You were one of them.
+                        </p>
+                    </div>
+                </div>
+                <div class="env-front-left"></div>
+                <div class="env-front-right"></div>
+                <div class="env-front-bottom"></div>
+                <div class="env-flap"></div>
+                <div class="env-seal"></div>
+            </div>
+        </div>
+        <p class="env-instruction" id="instruction-text">Tap on the Envelope to Open.</p>
+    </div>
+
+    <div id="bouquet-overlay" class="stage hidden" onclick="closeBouquet()">
+        <div class="bouquet-bloom"></div>
+        <div class="tap-prompt-bloom">Tap to reveal...</div>
+    </div>
+
+    <div id="grand-reveal" class="stage hidden">
+        <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
+        <div class="ocean-container">
+            <h1 class="reveal-headline">Happy Anniversary, my love!</h1>
+            <p class="reveal-subtext">
+                This past year has been the most beautiful journey of my life. Even though we are apart, every day you prove that the distance means absolutely nothing compared to what we have...
+            </p>
+
+            <div class="map-section">
+                <h3 class="map-title">Distance is Just a Number</h3>
+                <p class="ldr-locations"><span>Deoghar, Jharkhand</span> ✈ <span>Prayagraj, UP</span></p>
+                <div class="map-connection">
+                    <div class="city-pin deo"><span class="pin-heart">❤️</span><span class="pin-label">Deoghar</span></div>
+                    <div class="city-pin pry"><span class="pin-heart">❤️</span><span class="pin-label">Prayagraj</span></div>
+                    <div class="flight-path"></div>
+                    <span class="distance-heart">💖</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSCODE = "2308";
+        let currentInput = "";
+        let isEnvelopeOpen = false;
+
+        function pressKey(num) {
+            if (currentInput.length < 4) {
+                currentInput += num;
+                updateDots();
+            }
+        }
+
+        function clearCode() {
+            currentInput = "";
+            updateDots();
+        }
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index < currentInput.length) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }
+
+        function checkPasscode() {
+            if (currentInput ==
