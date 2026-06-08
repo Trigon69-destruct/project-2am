@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>For You</title>
+    <title>For You 💕</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@500;700&display=swap');
         
@@ -16,24 +16,15 @@
         }
 
         /* --- Full Screen Overlay System --- */
-        #lock-screen, #envelope-screen, #grand-reveal {
+        #lock-screen, #bouquet-overlay, #grand-reveal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center; flex-direction: column;
-            transition: opacity 1.2s ease, transform 1.2s ease;
+            transition: opacity 0.8s ease;
         }
         
-        /* Hide upcoming screens by default */
-        #envelope-screen, #grand-reveal { opacity: 0; display: none; pointer-events: none; }
+        #bouquet-overlay, #grand-reveal { opacity: 0; display: none; pointer-events: none; }
         
-        /* Layer priorities & Backgrounds */
         #lock-screen { background: #ba1636; z-index: 100; }
-        
-        /* Matched moody IG Video beige */
-        #envelope-screen { 
-            background-color: #e9dfd1; z-index: 90; color: #333; 
-            background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
         
         /* THE ULTIMATE WATERCOLOR OCEAN DREAMWORLD */
         #grand-reveal { 
@@ -88,116 +79,14 @@
         .enter-btn { background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* --- STAGE 2: PREMIUM CRIMSON ENVELOPE --- */
-        .env-title { 
-            font-family: 'Playfair Display', serif; 
-            font-size: 2.2rem; font-weight: 700; color: #1a1a1a; 
-            margin-bottom: 50px; letter-spacing: 0.5px; opacity: 1; transition: opacity 0.5s ease;
-        }
-        .env-instruction { margin-top: 50px; font-size: 0.85rem; color: #444; font-weight: 700; transition: opacity 0.3s; letter-spacing: 1px; text-transform: uppercase; }
-        
-        .envelope-perspective {
-            position: relative; width: 320px; height: 220px; perspective: 1000px;
-            cursor: pointer; -webkit-tap-highlight-color: transparent;
-            margin-bottom: 20px;
-        }
-        
-        .envelope-body {
-            position: absolute; width: 100%; height: 100%;
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s;
-            transform-style: preserve-3d; z-index: 1;
-        }
-        
-        .env-base {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #5c0a0c; border-radius: 4px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 1;
-        }
-        
-        .env-letter-pocket {
-            position: absolute; bottom: 10px; left: 15px; width: 290px; height: 190px;
-            z-index: 2; overflow: hidden; 
-        }
-
-        .env-letter-card {
-            width: 100%; height: 100%; background: #fffdf8; border-radius: 4px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transform: translateY(0%);
-            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1), height 1s, width 1s, border-radius 1s, padding 1s, left 1s, top 1s; 
-        }
-        
-        .letter-text {
-            font-family: 'Quicksand', sans-serif; font-size: 1.05rem; font-weight: 700;
-            color: #333; line-height: 1.6; opacity: 0; transition: opacity 0.5s ease;
-            max-width: 400px; margin: 0 auto;
-        }
-        .letter-text span { color: #ba1636; } 
-        
-        .env-front-left {
-            position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-top: 110px solid transparent; border-bottom: 110px solid transparent;
-            border-left: 160px solid #8e1418; z-index: 3; border-radius: 4px 0 0 4px;
-        }
-        .env-front-right {
-            position: absolute; top: 0; right: 0; width: 0; height: 0;
-            border-top: 110px solid transparent; border-bottom: 110px solid transparent;
-            border-right: 160px solid #8e1418; z-index: 3; border-radius: 0 4px 4px 0;
-        }
-        .env-front-bottom {
-            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
-            border-left: 160px solid transparent; border-right: 160px solid transparent;
-            border-bottom: 120px solid #a3191d; z-index: 4; border-radius: 0 0 4px 4px;
-        }
-        
-        .env-flap {
-            position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-left: 160px solid transparent; border-right: 160px solid transparent;
-            border-top: 130px solid #b51c22;
-            transform-origin: top; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s;
-            z-index: 5;
-        }
-        
-        .env-seal {
-            position: absolute; top: 105px; left: 50%; transform: translateX(-50%);
-            width: 50px; height: 50px; background: #f2e3be; border-radius: 50%;
-            z-index: 6; border: 2px solid #e0c88b; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.3s ease, transform 0.4s ease; animation: pulse 2s infinite; pointer-events: none;
-        }
-        .env-seal::after { content: '🌿'; font-size: 1.3rem; filter: sepia(1) hue-rotate(-30deg) saturate(2); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224, 200, 139, 0.6); } 70% { box-shadow: 0 0 0 12px rgba(224, 200, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(224, 200, 139, 0); } }
-
-        /* Animation States */
-        .envelope-perspective.open .env-flap { transform: rotateX(180deg); z-index: 1; }
-        .envelope-perspective.open .env-seal { opacity: 0; transform: translateX(-50%) scale(0.6); }
-        
-        /* 1st Phase: Card slides up to reveal text */
-        .envelope-perspective.open .env-letter-card { transform: translateY(-70%); }
-        .envelope-perspective.open .letter-text { opacity: 1; transition-delay: 0.5s; }
-
-        /* 2nd Phase: Full Expansion */
-        .envelope-perspective.final-expand .envelope-body { transform: translateY(100px) scale(0.8); opacity: 0; }
-        .envelope-perspective.final-expand .env-letter-pocket { overflow: visible; z-index: 100; }
-        .envelope-perspective.final-expand .env-letter-card {
-            width: 100vw; height: 100vh;
-            border-radius: 0; position: fixed; top: 0; left: 0;
-            z-index: 95; padding: 100px 30px; transform: translateY(0);
-        }
-        .envelope-perspective.final-expand .letter-text { font-size: 1.3rem; }
-
-        /* --- STAGE 3: THE BOOMING BOUQUET BLOOM --- */
+        /* --- STAGE 2: THE BOOMING BOUQUET BLOOM --- */
         #bouquet-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 200; pointer-events: none; opacity: 0; transition: opacity 0.5s;
-            background-color: #f7e6e9; display: flex; align-items: center; justify-content: center;
+            background-color: #f7e6e9; z-index: 200; cursor: pointer;
         }
-        #bouquet-overlay.active { opacity: 1; pointer-events: auto; cursor: pointer; }
         
         .bouquet-bloom {
             width: 300px; height: 300px; 
             background: radial-gradient(circle, #ba1636 0%, transparent 70%); 
-            /* Fallback gradient if flower-heart.png is missing */
             background-image: url('flower-heart.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
             transform: scale(0); transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -206,14 +95,14 @@
         #bouquet-overlay.active .bouquet-bloom { transform: scale(1); }
         
         .tap-prompt-bloom {
-            position: absolute; bottom: 50px; left: 0; width: 100%; text-align: center;
+            position: absolute; bottom: 80px; left: 0; width: 100%; text-align: center;
             font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #ba1636;
             animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.5s 1s;
         }
         #bouquet-overlay.active .tap-prompt-bloom { opacity: 1; }
         @keyframes pulse-bloom { 0%, 100% { opacity: 0.8; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
-        /* --- STAGE 4: THE DEOGHAR-TO-PRAYAGRAJ DREAMWORLD --- */
+        /* --- STAGE 3: THE DEOGHAR-TO-PRAYAGRAJ DREAMWORLD --- */
         .ocean-container {
             width: 100%; max-width: 1200px; padding: 100px 20px 200px 20px;
             display: flex; flex-direction: column; align-items: center;
@@ -226,7 +115,7 @@
         .map-section {
             width: 100%; max-width: 800px; background: white; border-radius: 12px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.08); padding: 40px; text-align: center;
-            margin-top: 100px; position: relative; z-index: 10;
+            margin-top: 50px; position: relative; z-index: 10;
         }
         .map-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #ba1636; margin-bottom: 10px; }
         .ldr-locations { font-size: 1.1rem; color: #333; font-weight: 700; margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; }
@@ -278,7 +167,7 @@
                 </div>
             </div>
             <div class="keypad-side">
-                <h2 class="passcode-title">Enter a Passcode</h2>
+                <h2 class="passcode-title">ENTER YOUR PASSCODE</h2>
                 <div class="dots-container" id="dots-container">
                     <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
@@ -299,35 +188,6 @@
                 <button class="enter-btn" onclick="checkPasscode()">Enter</button>
             </div>
         </div>
-    </div>
-
-    <div id="envelope-screen">
-        <h1 class="env-title">A Letter For you cutie!</h1>
-        
-        <div class="envelope-perspective" id="env-wrapper" onclick="openEnvelope()">
-            <div class="envelope-body">
-                <div class="env-base"></div>
-                
-                <div class="env-letter-pocket">
-                    <div class="env-letter-card" id="the-letter">
-                        <p class="letter-text">
-                            One year ago, a prayer I never spoke was answered in the form of a <span>person</span>.<br><br>
-                            Since then, every season has carried a little more light, a little more warmth, and a little more gratitude.<br><br>
-                            Some blessings arrive quietly.<br><br>
-                            You were one of them.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="env-front-left"></div>
-                <div class="env-front-right"></div>
-                <div class="env-front-bottom"></div>
-                <div class="env-flap"></div>
-                <div class="env-seal"></div>
-            </div>
-        </div>
-        
-        <p class="env-instruction" id="instruction-text">Tap on the Envelope to Open.</p>
     </div>
 
     <div id="bouquet-overlay" onclick="closeBouquet()">
@@ -357,4 +217,103 @@
                 
                 <div class="map-connection">
                     <div class="city-pin deo"><span class="pin-heart">❤️</span><span class="pin-label">Deoghar</span></div>
-                    <div clas
+                    <div class="city-pin pry"><span class="pin-heart">❤️</span><span class="pin-label">Prayagraj</span></div>
+                    <div class="flight-path"></div>
+                    <span class="distance-heart">💖</span>
+                </div>
+                
+                <p style="margin-top: 25px; font-weight: 700; color: #555;">(All the Polaroid memory slots for her photos go below this!)</p>
+            </div>
+            
+            <p style="margin-top: 150px; font-weight: 700; color: #ba1636; border: 2px dashed #ba1636; padding: 20px; text-align: center; max-width: 600px;">
+                Ready for Step 2: Uploading `memory1.jpg`, `memory2.jpg`, `memory3.jpg`, `memory4.jpg`, and `memory5.jpg` to GitHub so we can build the photo grid right here!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSCODE = "2308"; 
+        let currentInput = "";
+        
+        const dots = document.querySelectorAll('.dot');
+        const dotsContainer = document.getElementById('dots-container');
+
+        function pressKey(num) { 
+            if (currentInput.length < 4) { currentInput += num; updateDots(); } 
+        }
+        
+        function clearCode() { 
+            currentInput = ""; updateDots(); 
+        }
+        
+        function updateDots() { 
+            dots.forEach((dot, index) => { 
+                if (index < currentInput.length) dot.classList.add('active'); 
+                else dot.classList.remove('active'); 
+            }); 
+        }
+
+        function checkPasscode() {
+            if (currentInput === CORRECT_PASSCODE) {
+                
+                // Play music immediately since user tapped 'Enter' (Browser allows this)
+                try {
+                    const bgMusic = document.getElementById('bg-music');
+                    if(bgMusic) {
+                        bgMusic.volume = 0.2;
+                        bgMusic.play().catch(e => console.log("Audio blocked."));
+                    }
+                } catch(e) {}
+
+                document.getElementById('lock-screen').style.opacity = "0";
+                
+                setTimeout(() => {
+                    document.getElementById('lock-screen').style.display = "none";
+                    
+                    // Trigger Bouquet Reveal directly
+                    const bouquet = document.getElementById('bouquet-overlay');
+                    bouquet.style.display = "flex";
+                    bouquet.style.pointerEvents = "auto";
+                    
+                    setTimeout(() => {
+                        bouquet.style.opacity = "1";
+                        bouquet.classList.add('active');
+                    }, 50);
+                }, 800);
+                
+            } else { 
+                dotsContainer.classList.add('shake'); 
+                setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500); 
+            }
+        }
+
+        function closeBouquet() {
+            const bouquet = document.getElementById('bouquet-overlay');
+            bouquet.classList.remove('active');
+            bouquet.style.opacity = "0";
+            
+            setTimeout(() => {
+                bouquet.style.display = "none";
+                const revealScreen = document.getElementById('grand-reveal');
+                revealScreen.style.display = "flex";
+                revealScreen.style.pointerEvents = "auto"; 
+                setTimeout(() => revealScreen.style.opacity = "1", 50);
+            }, 800);
+        }
+
+        // Parallax Effect for Ocean Screen
+        const revealScreen = document.getElementById('grand-reveal');
+        const oceanElements = document.querySelectorAll('.ocean-element');
+        
+        if (revealScreen) {
+            revealScreen.addEventListener('scroll', () => {
+                const scrollPos = revealScreen.scrollTop;
+                oceanElements.forEach((el, index) => {
+                    const speed = 0.1 * (index + 1);
+                    el.style.transform = `translateY(${scrollPos * speed}px)`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
