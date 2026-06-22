@@ -70,9 +70,8 @@
         }
 
         .flower-particle {
-            position: absolute; width: 100px; height: auto;
+            position: absolute; width: 110px; height: auto;
             opacity: 0; transform-origin: center;
-            /* The magic cubic-bezier creates the fast pop and smooth bounce */
             transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
             filter: drop-shadow(0 10px 15px rgba(186,22,54,0.3));
             pointer-events: none;
@@ -165,11 +164,12 @@
     </div>
 
     <script>
-        // High-Resolution Public Domain Flower PNGs for the engine to use
+        // Local transparent PNGs hosted directly on your GitHub
         const flowerUrls = [
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Red_Rose.png/240px-Red_Rose.png",
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Pink_rose_transparent_background.png/240px-Pink_rose_transparent_background.png",
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/White_Rose.png/240px-White_Rose.png"
+            "flower1.png",
+            "flower2.png",
+            "flower3.png",
+            "flower4.png"
         ];
 
         // Preload images so they explode instantly without lag
@@ -179,10 +179,10 @@
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
 
-        // Pre-generate the 60 hidden flowers into the DOM immediately on page load
+        // Pre-generate 75 hidden flowers into the DOM immediately on page load
         window.onload = () => {
             const container = document.getElementById('flower-particle-container');
-            const totalFlowers = 60; // Lush density
+            const totalFlowers = 75; // Increased density for 4 assets
 
             for (let i = 0; i < totalFlowers; i++) {
                 const img = document.createElement('img');
@@ -190,26 +190,22 @@
                 img.className = 'flower-particle';
 
                 // --- THE PARAMETRIC HEART MATH ---
-                // Distributes flowers evenly inside a heart shape using sin/cos functions
                 const t = Math.random() * Math.PI * 2;
-                const r = Math.sqrt(Math.random()) * 1.1; // Density spread
+                const r = Math.sqrt(Math.random()) * 1.1; 
                 
                 const x = r * 16 * Math.pow(Math.sin(t), 3);
                 const y = -r * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
 
-                // Multiply by a factor to size the heart for mobile screens
-                const finalX = x * 11; 
-                const finalY = y * 11;
+                const finalX = x * 11.5; // Scaled slightly wider
+                const finalY = y * 11.5;
                 
-                // Randomize depth and rotation
                 const finalRot = Math.floor(Math.random() * 360);
-                const finalScale = 0.5 + (Math.random() * 0.9); // Sizes between 0.5x and 1.4x
+                const finalScale = 0.4 + (Math.random() * 1.0); // Natural varied sizing
                 const zIndex = Math.floor(Math.random() * 100);
 
                 img.style.zIndex = zIndex;
                 img.style.transform = `translate(0px, 0px) scale(0) rotate(0deg)`;
                 
-                // Store the final calculated physics values to be fired later
                 img.setAttribute('data-tx', finalX);
                 img.setAttribute('data-ty', finalY);
                 img.setAttribute('data-rot', finalRot);
@@ -248,13 +244,11 @@
             }
         }
 
-        // The function that animates the 60 flowers outward
         function fireBloomEngine() {
             const particles = document.querySelectorAll('.flower-particle');
             
             particles.forEach((p) => {
-                // Generates an organic stagger (0 to 600ms delay) so they don't all pop at the exact same time
-                const delay = Math.random() * 600; 
+                const delay = Math.random() * 650; 
                 
                 setTimeout(() => {
                     const tx = p.getAttribute('data-tx');
@@ -267,7 +261,6 @@
                 }, delay);
             });
 
-            // Reveal the tap prompt smoothly after the explosion finishes
             setTimeout(() => { document.getElementById('tap-prompt').style.opacity = "1"; }, 2000);
         }
 
@@ -291,4 +284,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
