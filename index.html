@@ -63,19 +63,19 @@
             .dots-container { margin-bottom: 25px; }
         }
 
-        /* --- STAGE 2: FULL-SCREEN PARTICLE ENGINE --- */
+        /* --- STAGE 2: LIQUID VELOCITY PARTICLE SYSTEM --- */
         #flower-particle-container {
-            position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-            display: flex; align-items: center; justify-content: center;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
 
         .flower-particle {
-            position: absolute; width: 140px; height: auto;
+            position: absolute; width: 150px; height: auto;
             opacity: 0; transform-origin: center;
-            transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
-            filter: drop-shadow(0 15px 25px rgba(186,22,54,0.3));
+            /* Using hardware acceleration to eliminate lagging */
+            will-change: transform, opacity;
+            filter: drop-shadow(0 10px 20px rgba(186,22,54,0.18));
             pointer-events: none;
-            will-change: transform;
         }
 
         .tap-prompt-bloom {
@@ -83,7 +83,7 @@
             font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: white;
             animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.8s ease;
             pointer-events: none; z-index: 999;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.5); /* Added heavy shadow so it pops over the flowers */
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         @keyframes pulse-bloom { 0%, 100% { opacity: 0.7; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
@@ -165,50 +165,50 @@
     </div>
 
     <script>
-        // Local transparent PNGs
-        const flowerUrls = [
-            "flower1.png",
-            "flower2.png",
-            "flower3.png",
-            "flower4.png"
-        ];
-
-        // Preload
+        const flowerUrls = ["flower1.png", "flower2.png", "flower3.png", "flower4.png"];
         flowerUrls.forEach(url => { const img = new Image(); img.src = url; });
 
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
+        
+        let flowerParticles = [];
+        let isLoopRunning = false;
+        let animationFrameId = null;
+        let bloomStartTime = 0;
 
-        // Pre-generate 110 hidden flowers for full-screen saturation
         window.onload = () => {
             const container = document.getElementById('flower-particle-container');
-            const totalFlowers = 110; 
+            const totalFlowers = 115; 
 
             for (let i = 0; i < totalFlowers; i++) {
                 const img = document.createElement('img');
                 img.src = flowerUrls[Math.floor(Math.random() * flowerUrls.length)];
                 img.className = 'flower-particle';
-
-                // --- FULL SCREEN SCATTER MATH ---
-                // Randomizes placement from -70vw to +70vw and -80vh to +80vh ensuring full edge bleed
-                const finalX = (Math.random() - 0.5) * 140; 
-                const finalY = (Math.random() - 0.5) * 160; 
-                
-                const finalRot = Math.floor(Math.random() * 360);
-                const finalScale = 1.0 + (Math.random() * 2.0); // Massive scaling to overlap heavily
-                const zIndex = Math.floor(Math.random() * 100);
-
-                img.style.zIndex = zIndex;
-                img.style.transform = `translate(0px, 0px) scale(0) rotate(0deg)`;
-                
-                // Store VW and VH values directly
-                img.setAttribute('data-tx', finalX + 'vw');
-                img.setAttribute('data-ty', finalY + 'vh');
-                img.setAttribute('data-rot', finalRot);
-                img.setAttribute('data-scale', finalScale);
-                
                 container.appendChild(img);
+
+                // --- FLUID LAUNCH PHYSICS ---
+                const angle = Math.random() * Math.PI * 2;
+                
+                // Varied distance mapping to force complete edge saturation
+                const targetDistance = 75 + (Math.random() * 85); 
+                
+                const targetX = Math.cos(angle) * targetDistance;
+                const targetY = Math.sin(angle) * targetDistance;
+
+                flowerParticles.push({
+                    el: img,
+                    x: 0, y: 0,
+                    tx: targetX, ty: targetY,
+                    scale: 0,
+                    tScale: 1.2 + (Math.random() * 2.2), // Overlapping dimension saturation
+                    rot: Math.random() * 360,
+                    tRot: Math.random() * 360 + (Math.random() > 0.5 ? 180 : -180),
+                    opacity: 0,
+                    delay: Math.random() * 800, // Staggered entry matrix
+                    swaySeed: Math.random() * 100,
+                    swaySpeed: 0.02 + (Math.random() * 0.03)
+                });
             }
         };
 
@@ -228,7 +228,11 @@
                     setTimeout(() => {
                         bouquetStage.style.opacity = "1";
                         bouquetStage.style.pointerEvents = "auto";
-                        fireBloomEngine();
+                        
+                        // Fire the Fluid Engine Loop
+                        bloomStartTime = Date.now();
+                        isLoopRunning = true;
+                        updatePhysicsLoop();
                     }, 50);
                 }, 800);
             } else { 
@@ -238,27 +242,51 @@
             }
         }
 
-        function fireBloomEngine() {
-            const particles = document.querySelectorAll('.flower-particle');
-            
-            particles.forEach((p) => {
-                const delay = Math.random() * 700; 
-                
-                setTimeout(() => {
-                    const tx = p.getAttribute('data-tx');
-                    const ty = p.getAttribute('data-ty');
-                    const rot = p.getAttribute('data-rot');
-                    const scale = p.getAttribute('data-scale');
-                    
-                    p.style.opacity = 1;
-                    p.style.transform = `translate(${tx}, ${ty}) scale(${scale}) rotate(${rot}deg)`;
-                }, delay);
+        // --- THE FLUID MATHEMATICS PHYSICS ENGINE ---
+        function updatePhysicsLoop() {
+            if (!isLoopRunning) return;
+
+            const elapsed = Date.now() - bloomStartTime;
+            let totalSettled = 0;
+
+            flowerParticles.forEach((p) => {
+                if (elapsed > p.delay) {
+                    // Smooth easing calculations
+                    p.x += (p.tx - p.x) * 0.08;
+                    p.y += (p.ty - p.y) * 0.08;
+                    p.scale += (p.tScale - p.scale) * 0.08;
+                    p.rot += (p.tRot - p.rot) * 0.08;
+                    p.opacity += (1 - p.opacity) * 0.1;
+
+                    // Continuous natural swaying motion after expansion
+                    if (Math.abs(p.tx - p.x) < 1) {
+                        p.swaySeed += p.swaySpeed;
+                        const swayX = Math.sin(p.swaySeed) * 0.3;
+                        const swayY = Math.cos(p.swaySeed) * 0.3;
+                        p.x += swayX;
+                        p.y += swayY;
+                        p.rot += Math.sin(p.swaySeed) * 0.05;
+                        totalSettled++;
+                    }
+                }
+
+                // Inject processing explicitly via 3D hardware space to avoid mobile lag
+                p.el.style.opacity = p.opacity;
+                p.el.style.transform = `translate3d(${p.x}vw, ${p.y}vh, 0px) scale(${p.scale}) rotate(${p.rot}deg)`;
             });
 
-            setTimeout(() => { document.getElementById('tap-prompt').style.opacity = "1"; }, 2000);
+            // Smoothly display prompt once wall layout establishes density
+            if (elapsed > 2200) {
+                document.getElementById('tap-prompt').style.opacity = "1";
+            }
+
+            animationFrameId = requestAnimationFrame(updatePhysicsLoop);
         }
 
         function triggerOcean() {
+            isLoopRunning = false;
+            cancelAnimationFrame(animationFrameId);
+
             const bouquet = document.getElementById('bouquet-stage');
             bouquet.style.pointerEvents = "none";
             bouquet.style.opacity = "0";
