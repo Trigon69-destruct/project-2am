@@ -23,8 +23,7 @@
         
         #bouquet-stage, #ocean-stage { opacity: 0; display: none; pointer-events: none; }
         #lock-stage { background: #ba1636; z-index: 100; }
-        
-        #bouquet-stage { background-color: #eae1d8; z-index: 90; }
+        #bouquet-stage { background-color: #eae1d8; z-index: 90; cursor: pointer; }
 
         #ocean-stage { 
             background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
@@ -50,7 +49,7 @@
         .shake .dot { border-color: white; background-color: transparent; }
         
         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-        .key, .enter-btn { cursor: pointer; user-select: none; -webkit-user-select: none; font-family: 'Quicksand', sans-serif; font-weight: 700; border: none; outline: none; background: #ff99aa; color: #ba1636; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; touch-action: manipulation; }
+        .key, .enter-btn { cursor: pointer; user-select: none; font-family: 'Quicksand', sans-serif; font-weight: 700; border: none; outline: none; background: #ff99aa; color: #ba1636; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; touch-action: manipulation; }
         .key { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; }
         .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .enter-btn { padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
@@ -64,37 +63,34 @@
             .dots-container { margin-bottom: 25px; }
         }
 
-        /* --- STAGE 2: THE ELEGANT SINGLE BLOOM --- */
-        .bouquet-bloom {
-            width: 90vw; max-width: 420px; 
-            height: 90vw; max-height: 420px;
-            background-image: url('flower-heart.png'); 
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0;
-            transform: scale(0.3) translateY(30px); 
-            transition: transform 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1s ease;
-            filter: drop-shadow(0 15px 35px rgba(186,22,54,0.2));
-            pointer-events: none;
+        /* --- STAGE 2: 3D PARAMETRIC PARTICLE ENGINE --- */
+        #flower-particle-container {
+            position: absolute; top: 45%; left: 50%; width: 0; height: 0;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* Triggered via JS class addition */
-        #bouquet-stage.active .bouquet-bloom { 
-            opacity: 1;
-            transform: scale(1) translateY(0); 
+        .flower-particle {
+            position: absolute; width: 100px; height: auto;
+            opacity: 0; transform-origin: center;
+            /* The magic cubic-bezier creates the fast pop and smooth bounce */
+            transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+            filter: drop-shadow(0 10px 15px rgba(186,22,54,0.3));
+            pointer-events: none;
+            will-change: transform;
         }
 
         .tap-prompt-bloom {
             position: absolute; bottom: 80px; width: 100%; text-align: center;
             font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #ba1636;
             animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.8s ease;
-            pointer-events: none;
+            pointer-events: none; text-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         @keyframes pulse-bloom { 0%, 100% { opacity: 0.6; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
         /* --- STAGE 3: OCEAN LAYER PLACEHOLDERS --- */
         .ocean-container {
             width: 100%; max-width: 1200px; padding: 100px 20px 200px 20px;
-            display: flex; flex-direction: column; align-items: center; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center; margin: 0 auto; min-height: 200vh;
         }
         
         .placeholder-box {
@@ -141,7 +137,7 @@
     </div>
 
     <div id="bouquet-stage" class="stage" onclick="triggerOcean()">
-        <div class="bouquet-bloom"></div>
+        <div id="flower-particle-container"></div>
         <div class="tap-prompt-bloom" id="tap-prompt">Tap to reveal...</div>
     </div>
 
@@ -169,9 +165,59 @@
     </div>
 
     <script>
+        // High-Resolution Public Domain Flower PNGs for the engine to use
+        const flowerUrls = [
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Red_Rose.png/240px-Red_Rose.png",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Pink_rose_transparent_background.png/240px-Pink_rose_transparent_background.png",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/White_Rose.png/240px-White_Rose.png"
+        ];
+
+        // Preload images so they explode instantly without lag
+        flowerUrls.forEach(url => { const img = new Image(); img.src = url; });
+
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
+
+        // Pre-generate the 60 hidden flowers into the DOM immediately on page load
+        window.onload = () => {
+            const container = document.getElementById('flower-particle-container');
+            const totalFlowers = 60; // Lush density
+
+            for (let i = 0; i < totalFlowers; i++) {
+                const img = document.createElement('img');
+                img.src = flowerUrls[Math.floor(Math.random() * flowerUrls.length)];
+                img.className = 'flower-particle';
+
+                // --- THE PARAMETRIC HEART MATH ---
+                // Distributes flowers evenly inside a heart shape using sin/cos functions
+                const t = Math.random() * Math.PI * 2;
+                const r = Math.sqrt(Math.random()) * 1.1; // Density spread
+                
+                const x = r * 16 * Math.pow(Math.sin(t), 3);
+                const y = -r * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                // Multiply by a factor to size the heart for mobile screens
+                const finalX = x * 11; 
+                const finalY = y * 11;
+                
+                // Randomize depth and rotation
+                const finalRot = Math.floor(Math.random() * 360);
+                const finalScale = 0.5 + (Math.random() * 0.9); // Sizes between 0.5x and 1.4x
+                const zIndex = Math.floor(Math.random() * 100);
+
+                img.style.zIndex = zIndex;
+                img.style.transform = `translate(0px, 0px) scale(0) rotate(0deg)`;
+                
+                // Store the final calculated physics values to be fired later
+                img.setAttribute('data-tx', finalX);
+                img.setAttribute('data-ty', finalY);
+                img.setAttribute('data-rot', finalRot);
+                img.setAttribute('data-scale', finalScale);
+                
+                container.appendChild(img);
+            }
+        };
 
         function pressKey(num) { if (currentInput.length < 4) { currentInput += num; updateDots(); } }
         function clearCode() { currentInput = ""; updateDots(); }
@@ -179,7 +225,6 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Fade out lock screen
                 document.getElementById('lock-stage').style.opacity = "0";
                 
                 setTimeout(() => {
@@ -187,16 +232,13 @@
                     const bouquetStage = document.getElementById('bouquet-stage');
                     bouquetStage.style.display = "flex";
                     
-                    // Trigger the clean, single bloom animation
                     setTimeout(() => {
                         bouquetStage.style.opacity = "1";
                         bouquetStage.style.pointerEvents = "auto";
-                        bouquetStage.classList.add('active'); // CSS scales it up beautifully
                         
-                        // Show text after bloom
-                        setTimeout(() => {
-                            document.getElementById('tap-prompt').style.opacity = "1";
-                        }, 1500);
+                        // IGNITE THE ENGINE
+                        fireBloomEngine();
+                        
                     }, 50);
                 }, 800);
             } else { 
@@ -206,12 +248,34 @@
             }
         }
 
+        // The function that animates the 60 flowers outward
+        function fireBloomEngine() {
+            const particles = document.querySelectorAll('.flower-particle');
+            
+            particles.forEach((p) => {
+                // Generates an organic stagger (0 to 600ms delay) so they don't all pop at the exact same time
+                const delay = Math.random() * 600; 
+                
+                setTimeout(() => {
+                    const tx = p.getAttribute('data-tx');
+                    const ty = p.getAttribute('data-ty');
+                    const rot = p.getAttribute('data-rot');
+                    const scale = p.getAttribute('data-scale');
+                    
+                    p.style.opacity = 1;
+                    p.style.transform = `translate(${tx}px, ${ty}px) scale(${scale}) rotate(${rot}deg)`;
+                }, delay);
+            });
+
+            // Reveal the tap prompt smoothly after the explosion finishes
+            setTimeout(() => { document.getElementById('tap-prompt').style.opacity = "1"; }, 2000);
+        }
+
         function triggerOcean() {
             const bouquet = document.getElementById('bouquet-stage');
             bouquet.style.pointerEvents = "none";
             bouquet.style.opacity = "0";
 
-            // Fire the audio strictly on this interaction
             try {
                 const bgMusic = document.getElementById('bg-music');
                 if(bgMusic) { bgMusic.volume = 0.2; bgMusic.play(); }
