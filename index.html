@@ -64,28 +64,30 @@
             .dots-container { margin-bottom: 25px; }
         }
 
-        /* --- STAGE 2: THE 3D ROTATING BLOOM ENGINE --- */
-        #bloom-container {
-            position: relative; width: 1px; height: 1px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        
-        .bloom-layer {
-            position: absolute;
-            width: 300px; height: 300px;
-            background-image: url('flower-heart.png');
+        /* --- STAGE 2: THE ELEGANT SINGLE BLOOM --- */
+        .bouquet-bloom {
+            width: 90vw; max-width: 420px; 
+            height: 90vw; max-height: 420px;
+            background-image: url('flower-heart.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
             opacity: 0;
-            transform: scale(0) rotate(0deg);
-            transition: transform 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
-            filter: drop-shadow(0 10px 20px rgba(186,22,54,0.15));
+            transform: scale(0.3) translateY(30px); 
+            transition: transform 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1s ease;
+            filter: drop-shadow(0 15px 35px rgba(186,22,54,0.2));
+            pointer-events: none;
+        }
+
+        /* Triggered via JS class addition */
+        #bouquet-stage.active .bouquet-bloom { 
+            opacity: 1;
+            transform: scale(1) translateY(0); 
         }
 
         .tap-prompt-bloom {
             position: absolute; bottom: 80px; width: 100%; text-align: center;
             font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #ba1636;
             animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.8s ease;
-            pointer-events: none; z-index: 10;
+            pointer-events: none;
         }
         @keyframes pulse-bloom { 0%, 100% { opacity: 0.6; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
@@ -105,7 +107,6 @@
 </head>
 <body>
 
-    <!-- STAGE 1: LOCK SCREEN -->
     <div id="lock-stage" class="stage">
         <div class="lock-container">
             <div class="polaroid">
@@ -139,15 +140,11 @@
         </div>
     </div>
 
-    <!-- STAGE 2: BOUQUET BLOOM -->
     <div id="bouquet-stage" class="stage" onclick="triggerOcean()">
-        <div id="bloom-container">
-            <!-- Layers injected by JS -->
-        </div>
+        <div class="bouquet-bloom"></div>
         <div class="tap-prompt-bloom" id="tap-prompt">Tap to reveal...</div>
     </div>
 
-    <!-- STAGE 3: OCEAN DREAMWORLD -->
     <div id="ocean-stage" class="stage">
         <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
 
@@ -190,11 +187,16 @@
                     const bouquetStage = document.getElementById('bouquet-stage');
                     bouquetStage.style.display = "flex";
                     
-                    // Trigger the 3D Bloom Engine
+                    // Trigger the clean, single bloom animation
                     setTimeout(() => {
                         bouquetStage.style.opacity = "1";
                         bouquetStage.style.pointerEvents = "auto";
-                        fireBloomEngine();
+                        bouquetStage.classList.add('active'); // CSS scales it up beautifully
+                        
+                        // Show text after bloom
+                        setTimeout(() => {
+                            document.getElementById('tap-prompt').style.opacity = "1";
+                        }, 1500);
                     }, 50);
                 }, 800);
             } else { 
@@ -202,37 +204,6 @@
                 dotsContainer.classList.add('shake'); 
                 setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500); 
             }
-        }
-
-        // The JavaScript 3D Particle Generator
-        function fireBloomEngine() {
-            const container = document.getElementById('bloom-container');
-            
-            // Layer configurations: [scale, rotation, transition delay]
-            const layers = [
-                { scale: 1.2, rot: -10, delay: 0 },
-                { scale: 1.6, rot: 15,  delay: 100 },
-                { scale: 2.1, rot: -20, delay: 200 },
-                { scale: 2.5, rot: 8,   delay: 300 },
-                { scale: 3.0, rot: -5,  delay: 450 }
-            ];
-
-            layers.forEach((config) => {
-                const layer = document.createElement('div');
-                layer.className = 'bloom-layer';
-                container.appendChild(layer);
-                
-                // Trigger the CSS hardware acceleration after short delay
-                setTimeout(() => {
-                    layer.style.opacity = "1";
-                    layer.style.transform = `scale(${config.scale}) rotate(${config.rot}deg)`;
-                }, config.delay + 50);
-            });
-
-            // Show tap prompt after bloom finishes
-            setTimeout(() => {
-                document.getElementById('tap-prompt').style.opacity = "1";
-            }, 1800);
         }
 
         function triggerOcean() {
