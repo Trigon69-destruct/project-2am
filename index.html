@@ -12,59 +12,34 @@
             background-color: #ba1636; color: white; display: flex; justify-content: center; 
             align-items: center; min-height: 100vh; overflow: hidden; font-family: 'Quicksand', sans-serif;
             -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
-            scroll-behavior: smooth;
         }
 
-        /* --- Full Screen Overlay System --- */
-        #lock-screen, #bouquet-overlay, #grand-reveal {
+        /* --- STAGE SYSTEM --- */
+        .stage {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s ease;
         }
         
-        #bouquet-overlay, #grand-reveal { opacity: 0; display: none; pointer-events: none; }
+        #bouquet-stage, #ocean-stage { opacity: 0; display: none; pointer-events: none; }
+        #lock-stage { background: #ba1636; z-index: 100; }
         
-        #lock-screen { background: #ba1636; z-index: 100; }
-        
-        /* THE ULTIMATE WATERCOLOR OCEAN DREAMWORLD */
-        #grand-reveal { 
-            background-color: #f7e6e9; z-index: 80; color: #333;
-            overflow-y: scroll;
-            display: flex; align-items: flex-start; justify-content: flex-start;
+        #bouquet-stage { background-color: #eae1d8; z-index: 90; }
+
+        #ocean-stage { 
+            background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
+            z-index: 80; color: #333; overflow-y: auto; justify-content: flex-start;
         }
 
-        .lock-container {
-            display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px;
-            width: 100%; max-width: 800px; padding: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .lock-container { flex-direction: column; gap: 20px; }
-            .polaroid { width: 240px !important; padding: 12px 12px 75px 12px !important; margin-top: 20px; margin-left: 10px; }
-            .bow { left: -15px !important; top: -20px !important; font-size: 3.5rem !important; }
-            .keypad-grid { gap: 12px !important; margin-bottom: 20px !important; }
-            .key { width: 50px !important; height: 50px !important; font-size: 1.3rem !important; } 
-            .dots-container { margin-bottom: 25px !important; }
-            .passcode-title { margin-bottom: 15px !important; }
-        }
-
-        /* Polaroid */
-        .polaroid {
-            background: white; padding: 15px 15px 85px 15px; border-radius: 6px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; text-align: center; 
-            width: 260px; transform: rotate(-2deg);
-        }
+        /* --- STAGE 1: LOCK SCREEN --- */
+        .lock-container { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px; width: 100%; max-width: 800px; padding: 20px; }
+        .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; text-align: center; width: 260px; transform: rotate(-2deg); }
         .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee; border-radius: 4px; pointer-events: none; }
         .polaroid .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; line-height: 1.2; padding: 0 10px; }
         .caption .title { font-family: 'Dancing Script', cursive; font-size: 1.6rem; display: block; }
-        
-        .bow {
-            position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); 
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; pointer-events: none;
-        }
+        .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; pointer-events: none; }
         @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
 
-        /* Keypad layout */
         .keypad-side { display: flex; flex-direction: column; align-items: center; }
         .passcode-title { font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
         .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
@@ -73,91 +48,65 @@
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .shake { animation: shake 0.4s ease-in-out; }
         .shake .dot { border-color: white; background-color: transparent; }
+        
         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-        .key { width: 55px; height: 55px; border-radius: 50%; background: #ff99aa; border: none; color: #ba1636; font-size: 1.5rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; }
+        .key, .enter-btn { cursor: pointer; user-select: none; -webkit-user-select: none; font-family: 'Quicksand', sans-serif; font-weight: 700; border: none; outline: none; background: #ff99aa; color: #ba1636; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; touch-action: manipulation; }
+        .key { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; }
         .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .enter-btn { background: #ff99aa; color: #ba1636; border: none; padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; font-family: 'Quicksand', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+        .enter-btn { padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* --- STAGE 2: THE BOOMING BOUQUET BLOOM --- */
-        #bouquet-overlay {
-            background-color: #f7e6e9; z-index: 200; cursor: pointer;
+        @media (max-width: 768px) {
+            .lock-container { flex-direction: column; gap: 20px; }
+            .polaroid { width: 240px; padding: 12px 12px 75px 12px; margin-top: 20px; }
+            .key { width: 50px; height: 50px; font-size: 1.3rem; }
+            .keypad-grid { gap: 12px; margin-bottom: 20px; }
+            .dots-container { margin-bottom: 25px; }
         }
-        
-        .bouquet-bloom {
-            width: 300px; height: 300px; 
-            background: radial-gradient(circle, #ba1636 0%, transparent 70%); 
-            background-image: url('flower-heart.png'); 
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            transform: scale(0); transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
-        }
-        #bouquet-overlay.active .bouquet-bloom { transform: scale(1); }
-        
-        .tap-prompt-bloom {
-            position: absolute; bottom: 80px; left: 0; width: 100%; text-align: center;
-            font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #ba1636;
-            animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.5s 1s;
-        }
-        #bouquet-overlay.active .tap-prompt-bloom { opacity: 1; }
-        @keyframes pulse-bloom { 0%, 100% { opacity: 0.8; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
-        /* --- STAGE 3: THE DEOGHAR-TO-PRAYAGRAJ DREAMWORLD --- */
+        /* --- STAGE 2: THE 3D ROTATING BLOOM ENGINE --- */
+        #bloom-container {
+            position: relative; width: 1px; height: 1px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .bloom-layer {
+            position: absolute;
+            width: 300px; height: 300px;
+            background-image: url('flower-heart.png');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0;
+            transform: scale(0) rotate(0deg);
+            transition: transform 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+            filter: drop-shadow(0 10px 20px rgba(186,22,54,0.15));
+        }
+
+        .tap-prompt-bloom {
+            position: absolute; bottom: 80px; width: 100%; text-align: center;
+            font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #ba1636;
+            animation: pulse-bloom 2s infinite; opacity: 0; transition: opacity 0.8s ease;
+            pointer-events: none; z-index: 10;
+        }
+        @keyframes pulse-bloom { 0%, 100% { opacity: 0.6; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
+
+        /* --- STAGE 3: OCEAN LAYER PLACEHOLDERS --- */
         .ocean-container {
             width: 100%; max-width: 1200px; padding: 100px 20px 200px 20px;
-            display: flex; flex-direction: column; align-items: center;
-            margin: 0 auto; min-height: 200vh; 
+            display: flex; flex-direction: column; align-items: center; margin: 0 auto;
         }
         
-        .ocean-element { position: absolute; pointer-events: none; transition: transform 0.1s linear; will-change: transform; opacity: 0.7; }
-        .bubble { width: 30px; height: 30px; background: rgba(255,255,255,0.4); border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .map-section {
-            width: 100%; max-width: 800px; background: white; border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.08); padding: 40px; text-align: center;
-            margin-top: 50px; position: relative; z-index: 10;
+        .placeholder-box {
+            width: 100%; max-width: 600px; background: rgba(255,255,255,0.6);
+            border: 2px dashed #ba1636; border-radius: 12px; padding: 40px 20px;
+            text-align: center; margin-bottom: 40px; font-weight: 700; color: #ba1636;
+            backdrop-filter: blur(5px);
         }
-        .map-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #ba1636; margin-bottom: 10px; }
-        .ldr-locations { font-size: 1.1rem; color: #333; font-weight: 700; margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; }
-        .ldr-locations span { color: #8e1418; font-weight: 700; }
-        
-        .map-connection {
-            width: 100%; height: 250px; background: #faf5f0; border-radius: 8px; border: 1px solid #eee;
-            position: relative; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        
-        .flight-path {
-            position: absolute; top: 110px; left: 10%; width: 80%; height: 50px;
-            background: url("data:image/svg+xml,%3Csvg width='100%' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 10 30 Q 150 0, 290 30' stroke='%23ba1636' stroke-width='2' stroke-dasharray='5 5' fill='none'/%3E%3C/svg%3E") no-repeat center;
-            background-size: cover; z-index: 2;
-        }
-        
-        .city-pin {
-            position: absolute; top: 120px; z-index: 3;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .city-pin.deo { left: 8%; } 
-        .city-pin.pry { right: 8%; } 
-        
-        .pin-heart { font-size: 1.2rem; margin-bottom: -5px; animation: heart-pulse 2s infinite; }
-        .pin-label { font-size: 0.8rem; color: white; background: #ba1636; padding: 2px 10px; border-radius: 10px; font-weight: 700; }
-        
-        .distance-heart {
-            font-size: 2.5rem; position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
-            animation: heart-pulse 2s infinite 0.5s; z-index: 4; filter: drop-shadow(0 5px 15px rgba(186,22,54,0.3));
-        }
-        
-        @keyframes heart-pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-
     </style>
 </head>
 <body>
 
-    <div id="lock-screen">
+    <!-- STAGE 1: LOCK SCREEN -->
+    <div id="lock-stage" class="stage">
         <div class="lock-container">
             <div class="polaroid">
                 <div class="bow">🎀</div>
@@ -190,129 +139,120 @@
         </div>
     </div>
 
-    <div id="bouquet-overlay" onclick="closeBouquet()">
-        <div class="bouquet-bloom"></div>
-        <div class="tap-prompt-bloom">Tap to reveal...</div>
+    <!-- STAGE 2: BOUQUET BLOOM -->
+    <div id="bouquet-stage" class="stage" onclick="triggerOcean()">
+        <div id="bloom-container">
+            <!-- Layers injected by JS -->
+        </div>
+        <div class="tap-prompt-bloom" id="tap-prompt">Tap to reveal...</div>
     </div>
 
-    <div id="grand-reveal">
-        
+    <!-- STAGE 3: OCEAN DREAMWORLD -->
+    <div id="ocean-stage" class="stage">
         <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
 
-        <div class="ocean-element bubble" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
-        <div class="ocean-element bubble" style="top: 40%; right: 15%; animation-delay: 1s;"></div>
-        <div class="ocean-element bubble" style="bottom: 30%; left: 20%; animation-delay: 2s;"></div>
-
         <div class="ocean-container">
-            
             <h1 style="font-family: 'Playfair Display', serif; color: #ba1636; font-size: 3rem; margin-bottom: 30px; text-align: center;">Happy Anniversary, my love!</h1>
             
-            <p style="width: 90%; max-width: 600px; text-align: center; line-height: 1.8; font-weight: 700; color: #444;">
-                This past year has been the most beautiful journey of my life. Even though we are apart, every day you prove that the distance means absolutely nothing compared to what we have...
-            </p>
-
-            <div class="map-section">
-                <h3 class="map-title">Distance is Just a Number</h3>
-                <p class="ldr-locations"><span>Deoghar, Jharkhand</span> ✈ <span>Prayagraj, UP</span></p>
-                
-                <div class="map-connection">
-                    <div class="city-pin deo"><span class="pin-heart">❤️</span><span class="pin-label">Deoghar</span></div>
-                    <div class="city-pin pry"><span class="pin-heart">❤️</span><span class="pin-label">Prayagraj</span></div>
-                    <div class="flight-path"></div>
-                    <span class="distance-heart">💖</span>
-                </div>
-                
-                <p style="margin-top: 25px; font-weight: 700; color: #555;">(All the Polaroid memory slots for her photos go below this!)</p>
+            <div class="placeholder-box">
+                [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
+                This area will house the customized pink envelope letter and the Spotify song player widget.
             </div>
-            
-            <p style="margin-top: 150px; font-weight: 700; color: #ba1636; border: 2px dashed #ba1636; padding: 20px; text-align: center; max-width: 600px;">
-                Ready for Step 2: Uploading `memory1.jpg`, `memory2.jpg`, `memory3.jpg`, `memory4.jpg`, and `memory5.jpg` to GitHub so we can build the photo grid right here!
-            </p>
+
+            <div class="placeholder-box" style="height: 300px;">
+                [ POLAROID MEMORY GRID PLACEHOLDER ]<br><br>
+                This area will display the scattered array of memory1.jpg to memory5.jpg.
+            </div>
+
+            <div class="placeholder-box">
+                [ MAP & VOICE NOTE PLACEHOLDER ]<br><br>
+                This area will show the Deoghar to Prayagraj tracking map and the interactive voice note UI.
+            </div>
         </div>
     </div>
 
     <script>
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
-        
         const dots = document.querySelectorAll('.dot');
-        const dotsContainer = document.getElementById('dots-container');
 
-        function pressKey(num) { 
-            if (currentInput.length < 4) { currentInput += num; updateDots(); } 
-        }
-        
-        function clearCode() { 
-            currentInput = ""; updateDots(); 
-        }
-        
-        function updateDots() { 
-            dots.forEach((dot, index) => { 
-                if (index < currentInput.length) dot.classList.add('active'); 
-                else dot.classList.remove('active'); 
-            }); 
-        }
+        function pressKey(num) { if (currentInput.length < 4) { currentInput += num; updateDots(); } }
+        function clearCode() { currentInput = ""; updateDots(); }
+        function updateDots() { dots.forEach((dot, index) => { if (index < currentInput.length) dot.classList.add('active'); else dot.classList.remove('active'); }); }
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                
-                // Play music immediately since user tapped 'Enter' (Browser allows this)
-                try {
-                    const bgMusic = document.getElementById('bg-music');
-                    if(bgMusic) {
-                        bgMusic.volume = 0.2;
-                        bgMusic.play().catch(e => console.log("Audio blocked."));
-                    }
-                } catch(e) {}
-
-                document.getElementById('lock-screen').style.opacity = "0";
+                // Fade out lock screen
+                document.getElementById('lock-stage').style.opacity = "0";
                 
                 setTimeout(() => {
-                    document.getElementById('lock-screen').style.display = "none";
+                    document.getElementById('lock-stage').style.display = "none";
+                    const bouquetStage = document.getElementById('bouquet-stage');
+                    bouquetStage.style.display = "flex";
                     
-                    // Trigger Bouquet Reveal directly
-                    const bouquet = document.getElementById('bouquet-overlay');
-                    bouquet.style.display = "flex";
-                    bouquet.style.pointerEvents = "auto";
-                    
+                    // Trigger the 3D Bloom Engine
                     setTimeout(() => {
-                        bouquet.style.opacity = "1";
-                        bouquet.classList.add('active');
+                        bouquetStage.style.opacity = "1";
+                        bouquetStage.style.pointerEvents = "auto";
+                        fireBloomEngine();
                     }, 50);
                 }, 800);
-                
             } else { 
+                const dotsContainer = document.getElementById('dots-container');
                 dotsContainer.classList.add('shake'); 
                 setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500); 
             }
         }
 
-        function closeBouquet() {
-            const bouquet = document.getElementById('bouquet-overlay');
-            bouquet.classList.remove('active');
-            bouquet.style.opacity = "0";
+        // The JavaScript 3D Particle Generator
+        function fireBloomEngine() {
+            const container = document.getElementById('bloom-container');
             
+            // Layer configurations: [scale, rotation, transition delay]
+            const layers = [
+                { scale: 1.2, rot: -10, delay: 0 },
+                { scale: 1.6, rot: 15,  delay: 100 },
+                { scale: 2.1, rot: -20, delay: 200 },
+                { scale: 2.5, rot: 8,   delay: 300 },
+                { scale: 3.0, rot: -5,  delay: 450 }
+            ];
+
+            layers.forEach((config) => {
+                const layer = document.createElement('div');
+                layer.className = 'bloom-layer';
+                container.appendChild(layer);
+                
+                // Trigger the CSS hardware acceleration after short delay
+                setTimeout(() => {
+                    layer.style.opacity = "1";
+                    layer.style.transform = `scale(${config.scale}) rotate(${config.rot}deg)`;
+                }, config.delay + 50);
+            });
+
+            // Show tap prompt after bloom finishes
             setTimeout(() => {
-                bouquet.style.display = "none";
-                const revealScreen = document.getElementById('grand-reveal');
-                revealScreen.style.display = "flex";
-                revealScreen.style.pointerEvents = "auto"; 
-                setTimeout(() => revealScreen.style.opacity = "1", 50);
-            }, 800);
+                document.getElementById('tap-prompt').style.opacity = "1";
+            }, 1800);
         }
 
-        // Parallax Effect for Ocean Screen
-        const revealScreen = document.getElementById('grand-reveal');
-        const oceanElements = document.querySelectorAll('.ocean-element');
-        
-        if (revealScreen) {
-            revealScreen.addEventListener('scroll', () => {
-                const scrollPos = revealScreen.scrollTop;
-                oceanElements.forEach((el, index) => {
-                    const speed = 0.1 * (index + 1);
-                    el.style.transform = `translateY(${scrollPos * speed}px)`;
-                });
-            });
+        function triggerOcean() {
+            const bouquet = document.getElementById('bouquet-stage');
+            bouquet.style.pointerEvents = "none";
+            bouquet.style.opacity = "0";
+
+            // Fire the audio strictly on this interaction
+            try {
+                const bgMusic = document.getElementById('bg-music');
+                if(bgMusic) { bgMusic.volume = 0.2; bgMusic.play(); }
+            } catch(e) {}
+
+            setTimeout(() => {
+                bouquet.style.display = "none";
+                const ocean = document.getElementById('ocean-stage');
+                ocean.style.display = "flex";
+                ocean.style.pointerEvents = "auto";
+                setTimeout(() => ocean.style.opacity = "1", 50);
+            }, 800);
         }
     </script>
 </body>
