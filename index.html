@@ -11,45 +11,70 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            background-color: #050505; color: white; overflow: hidden; 
+            background-color: #030303; color: white; overflow: hidden; 
             font-family: 'Quicksand', sans-serif; -webkit-touch-callout: none; user-select: none;
         }
 
-        /* --- 3D CANVAS LAYER --- */
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; opacity: 0; transition: opacity 2s ease; }
+        /* --- 3D CANVAS STAGE --- */
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; opacity: 0; transition: opacity 1.5s ease; }
 
-        /* --- UI LAYERS --- */
+        /* --- UI STAGES --- */
         #lock-stage {
             position: absolute; inset: 0; z-index: 100; background: #ba1636;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 1s ease, visibility 1s;
         }
 
-        .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; text-align: center; width: 240px; transform: rotate(-2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; text-align: center; width: 240px; transform: rotate(-2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; }
         .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
         .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; font-family: 'Dancing Script', cursive; font-size: 1.6rem; }
+        .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
 
-        .keypad-side { margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+        .keypad-side { margin-top: 35px; display: flex; flex-direction: column; align-items: center; }
         .passcode-title { font-size: 1rem; margin-bottom: 15px; color: #ffccd5; letter-spacing: 2px; text-transform: uppercase; }
         .dots-container { display: flex; gap: 15px; margin-bottom: 25px; }
-        .dot { width: 20px; height: 20px; border: 2px solid #ff99aa; border-radius: 50%; }
+        .dot { width: 20px; height: 20px; border: 2px solid #ff99aa; border-radius: 50%; transition: all 0.2s ease; }
         .dot.active { background-color: #ff99aa; transform: scale(1.1); }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .shake { animation: shake 0.4s ease-in-out; }
+
         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .key, .enter-btn { cursor: pointer; background: #ff99aa; color: #ba1636; border: none; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.5rem; transition: transform 0.1s; }
+        .key, .enter-btn { cursor: pointer; background: #ff99aa; color: #ba1636; border: none; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.5rem; transition: transform 0.1s; outline: none; }
         .key { width: 55px; height: 55px; border-radius: 50%; }
         .key:active { transform: scale(0.9); }
         .enter-btn { padding: 12px 40px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; }
 
         #interaction-prompt {
-            position: absolute; bottom: 15vh; width: 100%; text-align: center;
-            font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: #ff99aa;
-            z-index: 50; opacity: 0; pointer-events: none; text-shadow: 0 0 20px rgba(255,153,170,0.5);
+            position: absolute; bottom: 12vh; width: 100%; text-align: center;
+            font-family: 'Dancing Script', cursive; font-size: 2.3rem; color: #ffccd5;
+            z-index: 50; opacity: 0; pointer-events: none; text-shadow: 0 0 20px rgba(255,77,136,0.6);
         }
 
-        #spotify-layer {
-            position: absolute; top: 10vh; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 350px; z-index: 50; opacity: 0; transition: opacity 2s ease;
-            pointer-events: none; /* Disabled until active */
+        #scroll-container {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            overflow-y: auto; z-index: 10; display: none; opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .scroll-content {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 85vh 20px 20px 20px; width: 100%; max-width: 600px; margin: 0 auto;
+        }
+
+        .reveal-item {
+            opacity: 0; transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%; margin-bottom: 15vh;
+        }
+        .reveal-item.visible { opacity: 1; transform: translateY(0); }
+
+        .placeholder-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px; padding: 40px 20px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); color: #ffccd5; font-weight: 700;
         }
     </style>
 </head>
@@ -57,6 +82,7 @@
 
     <div id="lock-stage">
         <div class="polaroid">
+            <div class="bow">🎀</div>
             <img src="sweetu.jpg" alt="My Sweetu">
             <div class="caption">Congratulations for one year of our love</div>
         </div>
@@ -84,17 +110,31 @@
     </div>
 
     <div id="canvas-container"></div>
-    <div id="interaction-prompt">Touch the universe...</div>
+    <div id="interaction-prompt">Tap to morph universe...</div>
 
-    <div id="spotify-layer">
-        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(255,153,170,0.3);">
-            <p style="color: #ff99aa; margin-bottom: 10px;">🎵 Echoes of eternity</p>
-            <div style="height: 80px; border: 1px dashed #ff99aa; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#fff;">[Spotify Iframe goes here]</div>
+    <div id="scroll-container">
+        <div class="scroll-content">
+            
+            <div class="reveal-item placeholder-box">
+                [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
+                This area will house the pink envelope letter and the Spotify widget.
+            </div>
+
+            <div class="reveal-item placeholder-box" style="height: 350px; display: flex; align-items: center; justify-content: center;">
+                [ POLAROID MEMORY GRID PLACEHOLDER ]<br><br>
+                This area will display the scattered array of memory1.jpg to memory5.jpg.
+            </div>
+
+            <div class="reveal-item placeholder-box">
+                [ MAP & VOICE NOTE PLACEHOLDER ]<br><br>
+                This area will show the Deoghar to Prayagraj tracking map and the interactive voice note UI.
+            </div>
+
         </div>
     </div>
 
     <script>
-        // --- 1. LOCK SCREEN LOGIC ---
+        // --- 1. PASSCODE CONTROLLER ---
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
@@ -107,130 +147,153 @@
             if (currentInput === CORRECT_PASSCODE) {
                 document.getElementById('lock-stage').style.opacity = "0";
                 setTimeout(() => {
-                    document.getElementById('lock-stage').style.visibility = "hidden";
-                    init3DUniverse(); // Boot up the GPU engine
+                    document.getElementById('lock-stage').style.display = "none";
+                    init3DUniverse(); 
                 }, 1000);
             } else { 
-                clearCode(); 
+                const dotsContainer = document.getElementById('dots-container');
+                dotsContainer.classList.add('shake'); 
+                setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500);
             }
         }
 
-        // --- 2. THREE.JS 3D ENGINE ---
-        let scene, camera, renderer, particles, particleGeometry;
-        const PARTICLE_COUNT = 8000; // Massive density, zero lag on GPU
+        // --- 2. HIGH-DENSITY GPU PARTICLE SYSTEM ---
+        let scene, camera, renderer, particleSystem, particleGeometry;
+        const PARTICLE_COUNT = 15000; // Increased density matching the video benchmark
         
         let spherePositions = new Float32Array(PARTICLE_COUNT * 3);
         let heartPositions = new Float32Array(PARTICLE_COUNT * 3);
+        let currentPositions;
         
-        let isHeartShape = false;
-        let mouseX = 0; let mouseY = 0;
+        let isHeart = false;
+        let targetRotationX = 0, targetRotationY = 0;
+        let mouseX = 0, mouseY = 0;
+
+        // Create a custom circular glowing texture programmatically to prevent blurry edge defects
+        function createCircleTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,100,150,1)');
+            gradient.addColorStop(0.5, 'rgba(186,22,54,0.3)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
 
         function init3DUniverse() {
             const container = document.getElementById('canvas-container');
             container.style.opacity = "1";
 
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x050505, 0.02);
-
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 45;
+            camera.position.z = 35;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // Generate Math for Shapes
+            // Compute precise structural layouts
             for(let i = 0; i < PARTICLE_COUNT; i++) {
-                // Shape 1: The Galaxy (Sphere)
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.acos((Math.random() * 2) - 1);
-                const r = 15 + Math.random() * 8; // Galaxy radius
+                // Shape 1: Volumetric Sphere
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                const r = 11 + (Math.random() * 4); // Clustered nebula density
                 
                 spherePositions[i*3] = r * Math.sin(phi) * Math.cos(theta);
                 spherePositions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
                 spherePositions[i*3+2] = r * Math.cos(phi);
 
-                // Shape 2: The 3D Heart (Parametric Math)
+                // Shape 2: True 3D Parametric Heart
                 const t = Math.random() * Math.PI * 2;
-                const hr = 0.8 + Math.random() * 0.4; // Thickness spread
+                const hr = 0.65 + (Math.random() * 0.3); // Deep layer thickness mapping
                 
                 const hx = hr * 16 * Math.pow(Math.sin(t), 3);
                 const hy = hr * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-                const hz = (Math.random() - 0.5) * 6; // 3D depth of the heart
+                const hz = (Math.random() - 0.5) * 8; // Depth distribution matching video properties
                 
-                heartPositions[i*3] = hx * 0.8;
-                heartPositions[i*3+1] = hy * 0.8;
+                heartPositions[i*3] = hx * 0.75;
+                heartPositions[i*3+1] = hy * 0.75;
                 heartPositions[i*3+2] = hz;
             }
 
             particleGeometry = new THREE.BufferGeometry();
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(spherePositions, 3));
+            // Start layout on the sphere coordinates
+            currentPositions = new Float32Array(spherePositions);
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
 
-            // Premium Glowing Material
+            // Premium blended cloud materials
             const material = new THREE.PointsMaterial({
-                size: 0.18,
-                color: 0xff4d88, // Deep glowing pink
+                size: window.innerWidth < 768 ? 0.35 : 0.25,
+                map: createCircleTexture(),
                 transparent: true,
-                opacity: 0.8,
-                blending: THREE.AdditiveBlending
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
             });
 
-            particles = new THREE.Points(particleGeometry, material);
-            scene.add(particles);
+            particleSystem = new THREE.Points(particleGeometry, material);
+            scene.add(particleSystem);
 
-            // Fade in the prompt
+            // Interface cues
             setTimeout(() => {
-                gsap.to("#interaction-prompt", { opacity: 1, duration: 2, yoyo: true, repeat: -1 });
-            }, 2000);
+                gsap.to("#interaction-prompt", { opacity: 1, duration: 1 });
+            }, 1000);
 
-            // Interaction Listeners
+            // Action triggers
             window.addEventListener('resize', onWindowResize);
-            document.addEventListener('touchmove', onTouchMove, {passive: true});
-            document.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('pointermove', onPointerMove, { passive: true });
             
-            // The magic morph trigger
-            container.addEventListener('click', morphToHeart);
-            container.addEventListener('touchstart', morphToHeart);
+            container.addEventListener('click', handleMorphTrigger);
+            container.addEventListener('touchstart', handleMorphTrigger, { passive: true });
 
-            animate();
+            animateLoop();
         }
 
-        function morphToHeart() {
-            if(isHeartShape) return;
-            isHeartShape = true;
-            
-            gsap.killTweensOf("#interaction-prompt");
+        function handleMorphTrigger() {
+            if(isHeart) return;
+            isHeart = true;
+
             gsap.to("#interaction-prompt", { opacity: 0, duration: 0.5 });
 
-            // Reveal the UI
-            const spotifyLayer = document.getElementById('spotify-layer');
-            spotifyLayer.style.opacity = "1";
-            spotifyLayer.style.pointerEvents = "auto";
-
-            // Morphing Physics via GSAP
-            const currentPositions = particleGeometry.attributes.position.array;
+            // Animate each specific array matrix coordinates using GSAP optimization handles
+            const posAttr = particleGeometry.attributes.position;
             
             for(let i = 0; i < PARTICLE_COUNT; i++) {
+                const index = i * 3;
+                const delayValue = Math.random() * 0.6; // Staggered warp trails
+
                 gsap.to(currentPositions, {
-                    [i*3]: heartPositions[i*3],
-                    [i*3+1]: heartPositions[i*3+1],
-                    [i*3+2]: heartPositions[i*3+2],
-                    duration: 2.5 + Math.random() * 1.5, // Organic swirling delay
-                    ease: "power3.inOut",
-                    onUpdate: () => { particleGeometry.attributes.position.needsUpdate = true; }
+                    [index]: heartPositions[index],
+                    [index+1]: heartPositions[index+1],
+                    [index+2]: heartPositions[index+2],
+                    duration: 2.0 + (Math.random() * 1.2),
+                    delay: delayValue,
+                    ease: "power4.inOut",
+                    onUpdate: () => { posAttr.needsUpdate = true; }
                 });
             }
+
+            // Bring up scroll framework cleanly post-morph
+            setTimeout(() => {
+                const scrollContainer = document.getElementById('scroll-container');
+                scrollContainer.style.display = "block";
+                setTimeout(() => {
+                    scrollContainer.style.opacity = "1";
+                    initIntersectionObserver();
+                }, 50);
+            }, 2500);
         }
 
-        // Swipe & Mouse tracking for 3D rotation
-        function onMouseMove(event) {
-            mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
-            mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
-        }
-        function onTouchMove(event) {
-            mouseX = (event.touches[0].clientX - window.innerWidth / 2) * 0.001;
-            mouseY = (event.touches[0].clientY - window.innerHeight / 2) * 0.001;
+        function onPointerMove(e) {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.0006;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.0006;
         }
 
         function onWindowResize() {
@@ -239,18 +302,33 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // The Engine Loop
-        function animate() {
-            requestAnimationFrame(animate);
+        function animateLoop() {
+            requestAnimationFrame(animateLoop);
+
+            // Continuous rotation drift speed profiles
+            targetRotationY += 0.003;
             
-            // Constant subtle rotation
-            particles.rotation.y += 0.002;
-            
-            // Interactive Parallax
-            particles.rotation.x += (mouseY - particles.rotation.x) * 0.05;
-            particles.rotation.y += (mouseX - particles.rotation.y) * 0.05;
+            // Dynamic touch interpolation tracking values
+            targetRotationY += (mouseX - targetRotationY) * 0.05;
+            targetRotationX += (mouseY - targetRotationX) * 0.05;
+
+            particleSystem.rotation.x = targetRotationX;
+            particleSystem.rotation.y = targetRotationY;
 
             renderer.render(scene, camera);
+        }
+
+        // --- 3. SCROLL VISIBILITY OBSERVER ---
+        function initIntersectionObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { rootMargin: '0px', threshold: 0.12 });
+
+            document.querySelectorAll('.reveal-item').forEach(item => observer.observe(item));
         }
     </script>
 </body>
