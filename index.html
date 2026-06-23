@@ -159,8 +159,6 @@
     <div id="main-content">
         <div id="particle-bg"></div>
 
-        <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
-
         <div class="content-wrapper">
             
             <div class="reveal-item" style="margin-top: 10vh;">
@@ -170,7 +168,7 @@
 
             <div class="reveal-item placeholder-box">
                 [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
-                This area will house the pink envelope letter and the Spotify widget playing "Echoes of eternity".
+                This area will house the pink envelope letter and the Spotify widget.
             </div>
 
             <div class="reveal-item placeholder-box" style="height: 400px; display: flex; align-items: center; justify-content: center;">
@@ -200,13 +198,7 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // 1. Start Music immediately on Enter tap
-                try {
-                    const bgMusic = document.getElementById('bg-music');
-                    if(bgMusic) { bgMusic.volume = 0.2; bgMusic.play(); }
-                } catch(e) {}
-
-                // 2. Transition the Screens
+                // Transition the Screens
                 const lockStage = document.getElementById('lock-stage');
                 const mainContent = document.getElementById('main-content');
                 
@@ -267,8 +259,6 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        // Optional: stop observing once revealed to keep it visible
-                        // observer.unobserve(entry.target); 
                     }
                 });
             }, observerOptions);
