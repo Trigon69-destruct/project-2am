@@ -8,39 +8,30 @@
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@500;700&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Body starts locked, no scrolling allowed */
         body { 
-            background-color: #ba1636; color: white; display: flex; justify-content: center; 
-            align-items: center; min-height: 100vh; overflow: hidden; font-family: 'Quicksand', sans-serif;
+            background-color: #ba1636; color: #333; 
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden; margin: 0;
             -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
         }
 
-        /* --- STAGE SYSTEM --- */
-        .stage {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease;
-        }
-        
-        #lock-stage { background: #ba1636; z-index: 100; }
-        
-        /* The new premium background that sits behind the glass */
-        #premium-reveal-stage { 
-            background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
-            z-index: 90; opacity: 0; display: none; overflow: hidden;
-        }
-
-        #ocean-stage { 
-            background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
-            z-index: 80; color: #333; opacity: 0; display: none; overflow-y: auto; justify-content: flex-start;
-        }
-
         /* --- STAGE 1: LOCK SCREEN --- */
+        #lock-stage { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ba1636; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
         .lock-container { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px; width: 100%; max-width: 800px; padding: 20px; }
         .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; text-align: center; width: 260px; transform: rotate(-2deg); }
         .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee; border-radius: 4px; pointer-events: none; }
         .polaroid .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; line-height: 1.2; padding: 0 10px; }
         .caption .title { font-family: 'Dancing Script', cursive; font-size: 1.6rem; display: block; }
         .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; pointer-events: none; }
+        
         @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
 
         .keypad-side { display: flex; flex-direction: column; align-items: center; }
@@ -48,6 +39,7 @@
         .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
         .dot { width: 22px; height: 22px; border: 2.5px solid #ff99aa; border-radius: 6px; transition: all 0.3s ease; }
         .dot.active { background-color: #ff99aa; transform: scale(1.15); border-radius: 50%; }
+        
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .shake { animation: shake 0.4s ease-in-out; }
         .shake .dot { border-color: white; background-color: transparent; }
@@ -67,69 +59,71 @@
             .dots-container { margin-bottom: 25px; }
         }
 
-        /* --- STAGE 2: AMBIENT FLOWERS & GLASSMORPHISM --- */
-        .ambient-flower {
-            position: absolute; width: 220px; opacity: 0.5;
-            pointer-events: none; will-change: transform;
-            animation: float-ambient 14s ease-in-out infinite alternate;
-        }
-        
-        /* Pushing flowers to the corners and blurring the background ones */
-        .flower-tl { top: -5%; left: -15%; animation-delay: 0s; }
-        .flower-br { bottom: -10%; right: -10%; animation-delay: -3s; width: 260px; }
-        .flower-tr { top: 35%; right: -20%; animation-delay: -7s; filter: blur(6px); z-index: -1; }
-        .flower-bl { bottom: 25%; left: -15%; animation-delay: -5s; filter: blur(5px); z-index: -1; }
-
-        @keyframes float-ambient {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(25px, 35px) rotate(15deg); }
+        /* --- STAGE 2: SCROLLABLE ATMOSPHERE --- */
+        #main-content {
+            opacity: 0; visibility: hidden;
+            background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
+            min-height: 100vh; width: 100%;
+            transition: opacity 1.5s ease;
+            position: relative;
         }
 
-        .glass-card {
+        /* The Fixed Particle Background Layer */
+        #particle-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none; overflow: hidden;
+        }
+
+        .particle {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,182,193,0.2) 100%);
+            bottom: -10vh; /* Start below screen */
+            will-change: transform, opacity;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
+        }
+
+        /* The Scrollable Content Layer */
+        .content-wrapper {
             position: relative; z-index: 10;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 24px; padding: 50px 30px; text-align: center;
-            width: 85%; max-width: 420px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-            
-            /* Hidden state for the smooth entrance */
-            transform: translateY(50px); opacity: 0;
-            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1s ease;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 10vh 20px 15vh 20px; width: 100%; max-width: 800px; margin: 0 auto;
         }
 
-        #premium-reveal-stage.active .glass-card {
-            transform: translateY(0); opacity: 1;
+        /* Smooth Scroll Reveal Elements */
+        .reveal-item {
+            opacity: 0; transform: translateY(60px);
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%; text-align: center;
+            margin-bottom: 12vh;
         }
 
-        .glass-title { font-family: 'Playfair Display', serif; color: #ba1636; font-size: 2.2rem; margin-bottom: 15px; }
-        .glass-text { color: #555; font-size: 1.1rem; margin-bottom: 35px; font-weight: 500; line-height: 1.5; }
-        
-        .glass-btn {
-            background: #ba1636; color: white; border: none;
-            padding: 15px 40px; border-radius: 30px; font-family: 'Quicksand', sans-serif;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(186, 22, 54, 0.3); transition: all 0.3s ease;
+        .reveal-item.visible {
+            opacity: 1; transform: translateY(0);
         }
-        .glass-btn:active { transform: scale(0.95); box-shadow: 0 5px 10px rgba(186, 22, 54, 0.3); }
 
-        /* --- STAGE 3: OCEAN LAYER PLACEHOLDERS --- */
-        .ocean-container {
-            width: 100%; max-width: 1200px; padding: 80px 20px 200px 20px;
-            display: flex; flex-direction: column; align-items: center; margin: 0 auto;
-        }
+        .hero-title { font-family: 'Playfair Display', serif; color: #ba1636; font-size: 3.5rem; line-height: 1.2; margin-bottom: 10px; }
+        .hero-subtitle { font-family: 'Dancing Script', cursive; color: #d44a65; font-size: 1.8rem; }
         
         .placeholder-box {
-            width: 100%; max-width: 600px; background: rgba(255,255,255,0.6);
-            border: 2px dashed #ba1636; border-radius: 12px; padding: 40px 20px;
-            text-align: center; margin-bottom: 40px; font-weight: 700; color: #ba1636;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px; padding: 40px 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            color: #ba1636; font-weight: 700;
         }
     </style>
 </head>
 <body>
 
-    <div id="lock-stage" class="stage">
+    <div id="lock-stage">
         <div class="lock-container">
             <div class="polaroid">
                 <div class="bow">🎀</div>
@@ -162,38 +156,35 @@
         </div>
     </div>
 
-    <div id="premium-reveal-stage" class="stage">
-        <img src="flower1.png" class="ambient-flower flower-tl">
-        <img src="flower2.png" class="ambient-flower flower-br">
-        <img src="flower3.png" class="ambient-flower flower-tr">
-        <img src="flower4.png" class="ambient-flower flower-bl">
+    <div id="main-content">
+        <div id="particle-bg"></div>
 
-        <div class="glass-card">
-            <h2 class="glass-title">A Year of Us</h2>
-            <p class="glass-text">The lock is open, but the journey is just beginning.</p>
-            <button class="glass-btn" onclick="triggerOcean()">Tap to Begin</button>
-        </div>
-    </div>
-
-    <div id="ocean-stage" class="stage">
         <audio id="bg-music" src="run-through-fire.mp3" loop></audio>
 
-        <div class="ocean-container">
-            <h1 style="font-family: 'Playfair Display', serif; color: #ba1636; font-size: 3rem; margin-bottom: 30px; text-align: center;">Happy Anniversary, my love!</h1>
+        <div class="content-wrapper">
             
-            <div class="placeholder-box">
-                [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
-                This area will house the customized pink envelope letter and the Spotify widget loaded with the <b>"Echoes of eternity"</b> playlist.
+            <div class="reveal-item" style="margin-top: 10vh;">
+                <h1 class="hero-title">Happy Anniversary<br>My Love</h1>
+                <div class="hero-subtitle">Scroll down to explore our journey...</div>
             </div>
 
-            <div class="placeholder-box" style="height: 300px;">
+            <div class="reveal-item placeholder-box">
+                [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
+                This area will house the pink envelope letter and the Spotify widget playing "Echoes of eternity".
+            </div>
+
+            <div class="reveal-item placeholder-box" style="height: 400px; display: flex; align-items: center; justify-content: center;">
                 [ POLAROID MEMORY GRID PLACEHOLDER ]<br><br>
                 This area will display the scattered array of memory1.jpg to memory5.jpg.
             </div>
 
-            <div class="placeholder-box">
+            <div class="reveal-item placeholder-box">
                 [ MAP & VOICE NOTE PLACEHOLDER ]<br><br>
                 This area will show the Deoghar to Prayagraj tracking map and the interactive voice note UI.
+            </div>
+            
+            <div class="reveal-item hero-subtitle" style="margin-top: 5vh; margin-bottom: 5vh;">
+                Forever & Always ❤️
             </div>
         </div>
     </div>
@@ -209,21 +200,28 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Fade out lock screen
-                document.getElementById('lock-stage').style.opacity = "0";
+                // 1. Start Music immediately on Enter tap
+                try {
+                    const bgMusic = document.getElementById('bg-music');
+                    if(bgMusic) { bgMusic.volume = 0.2; bgMusic.play(); }
+                } catch(e) {}
+
+                // 2. Transition the Screens
+                const lockStage = document.getElementById('lock-stage');
+                const mainContent = document.getElementById('main-content');
+                
+                lockStage.style.opacity = "0";
                 
                 setTimeout(() => {
-                    document.getElementById('lock-stage').style.display = "none";
+                    lockStage.style.visibility = "hidden";
+                    mainContent.style.visibility = "visible";
+                    mainContent.style.opacity = "1";
                     
-                    // Reveal the premium glass stage
-                    const revealStage = document.getElementById('premium-reveal-stage');
-                    revealStage.style.display = "flex";
+                    // Unlock the page scrolling
+                    document.body.style.overflow = "auto";
                     
-                    // Small timeout to allow display:flex to register before animating opacity/transform
-                    setTimeout(() => {
-                        revealStage.style.opacity = "1";
-                        revealStage.classList.add('active');
-                    }, 50);
+                    // Initialize the scroll reveal observer
+                    initScrollReveal();
                 }, 1000);
             } else { 
                 const dotsContainer = document.getElementById('dots-container');
@@ -232,22 +230,58 @@
             }
         }
 
-        function triggerOcean() {
-            const revealStage = document.getElementById('premium-reveal-stage');
-            revealStage.style.opacity = "0";
+        // --- PARTICLE GENERATOR (Runs Once, Animated by CSS) ---
+        window.onload = () => {
+            const particleContainer = document.getElementById('particle-bg');
+            const particleCount = 40; // Keeps DOM incredibly light
 
-            // Fire the audio strictly on this button tap
-            try {
-                const bgMusic = document.getElementById('bg-music');
-                if(bgMusic) { bgMusic.volume = 0.2; bgMusic.play(); }
-            } catch(e) {}
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Randomize size, starting position, and animation timing
+                const size = Math.random() * 8 + 4; // 4px to 12px
+                const leftPos = Math.random() * 100; // 0% to 100% width
+                const duration = Math.random() * 10 + 10; // 10s to 20s float time
+                const delay = Math.random() * 10; // Staggered start times
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${leftPos}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `-${delay}s`; // Negative delay starts them immediately
+                
+                particleContainer.appendChild(particle);
+            }
+        };
 
+        // --- SCROLL REVEAL LOGIC ---
+        function initScrollReveal() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 // Triggers when 15% of the element is visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Optional: stop observing once revealed to keep it visible
+                        // observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-item').forEach(item => {
+                observer.observe(item);
+            });
+            
+            // Immediately trigger visibility check for items already in view on load
             setTimeout(() => {
-                revealStage.style.display = "none";
-                const ocean = document.getElementById('ocean-stage');
-                ocean.style.display = "flex";
-                setTimeout(() => ocean.style.opacity = "1", 50);
-            }, 1000);
+                const firstItems = document.querySelectorAll('.reveal-item');
+                if(firstItems[0]) firstItems[0].classList.add('visible');
+            }, 100);
         }
     </script>
 </body>
