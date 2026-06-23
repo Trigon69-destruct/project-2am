@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You 💕</title>
     
+    <!-- Core 3D Graphics and Easing Engines -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght=700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@400;500;700&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -18,10 +18,10 @@
             font-family: 'Quicksand', sans-serif; -webkit-touch-callout: none; user-select: none;
         }
 
-        /* --- BACKGROUND 3D CANVAS --- */
+        /* --- BACKGROUND 3D CANVAS LAYER --- */
         #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
 
-        /* --- STAGE 1: LOCK SCREEN --- */
+        /* --- STAGE 1: LOCK SCREEN (UNTOUCHED) --- */
         #lock-stage {
             position: fixed; inset: 0; z-index: 100; background: #ba1636;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -31,6 +31,8 @@
         .polaroid-lock { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; text-align: center; width: 240px; transform: rotate(-2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; }
         .polaroid-lock img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
         .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; font-family: 'Dancing Script', cursive; font-size: 1.6rem; }
+        .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
 
         .keypad-side { margin-top: 35px; display: flex; flex-direction: column; align-items: center; }
         .passcode-title { font-size: 1rem; margin-bottom: 15px; color: #ffccd5; letter-spacing: 2px; text-transform: uppercase; }
@@ -46,12 +48,13 @@
         .key:active { transform: scale(0.9); }
         .enter-btn { padding: 12px 40px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; }
 
-        /* --- STAGE 2: SCROLLING MASTER CONTENT --- */
+        /* --- STAGE 2: SCROLLING INTERACTIVE INTERFACE --- */
         #scroll-wrapper {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             overflow-y: auto; overflow-x: hidden; z-index: 10;
             display: none; opacity: 0; transition: opacity 1.5s ease;
             scroll-behavior: smooth;
+            touch-action: pan-y; /* Allows seamless swipe-to-scroll alongside drag gestures */
         }
 
         .content-container {
@@ -59,63 +62,72 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* The massive transparent gap so she can play with the 3D heart first */
-        .interactive-gap { width: 100%; height: 85vh; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 40px; }
-        .scroll-indicator { color: #ffccd5; font-family: 'Dancing Script', cursive; font-size: 2rem; animation: bounce 2s infinite; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* 100vh Landing Space dedicated purely to 3D interaction */
+        .interactive-gap { width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 60px; position: relative; }
+        .scroll-indicator { color: #ffccd5; font-family: 'Dancing Script', cursive; font-size: 2.2rem; animation: bounce 2s infinite; text-shadow: 0 2px 12px rgba(0,0,0,0.9); margin-top: 15px; pointer-events: none; }
+        .tap-indicator { font-size: 0.9rem; color: rgba(255, 204, 213, 0.7); text-transform: uppercase; letter-spacing: 3px; pointer-events: none; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
-        /* Premium Glass Cards */
+        /* Premium Modular Glass Cards */
         .glass-panel {
-            width: 100%; background: rgba(20, 5, 10, 0.4);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 153, 170, 0.2);
-            border-radius: 24px; padding: 30px 20px; text-align: center;
-            margin-bottom: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            opacity: 0; transform: translateY(40px); transition: all 0.8s ease;
+            width: 100%; background: rgba(18, 4, 8, 0.5);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 153, 170, 0.18);
+            border-radius: 24px; padding: 45px 25px; text-align: center;
+            margin-bottom: 50px; box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            opacity: 0; transform: translateY(60px); transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .glass-panel.visible { opacity: 1; transform: translateY(0); }
 
-        h2.section-title { font-family: 'Playfair Display', serif; color: #ff99aa; font-size: 2.2rem; margin-bottom: 20px; }
+        h2.section-title { font-family: 'Playfair Display', serif; color: #ff99aa; font-size: 2.2rem; margin-bottom: 12px; }
+        p.section-subtitle { color: #ccc; font-size: 0.95rem; margin-bottom: 30px; font-weight: 500; }
 
-        /* --- COMPONENT: INTERACTIVE ENVELOPE --- */
-        .envelope-wrapper { position: relative; width: 100%; height: 300px; margin-top: 20px; cursor: pointer; perspective: 1000px; }
-        .envelope { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 280px; height: 180px; background: #d44a65; border-radius: 0 0 10px 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); z-index: 3; }
-        .envelope:before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 90px solid #ba1636; z-index: 4; }
-        .envelope:after { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid #e05e78; border-right: 140px solid #e05e78; border-bottom: 90px solid transparent; z-index: 3; }
+        /* --- ENVELOPE SUBSYSTEM --- */
+        .envelope-wrapper { position: relative; width: 100%; height: 320px; margin-top: 10px; cursor: pointer; perspective: 1000px; }
+        .envelope { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 280px; height: 180px; background: #ba1636; border-radius: 0 0 10px 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); z-index: 3; }
+        .envelope:before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 90px solid #8a0e26; z-index: 4; }
+        .envelope:after { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid #d44a65; border-right: 140px solid #d44a65; border-bottom: 90px solid transparent; z-index: 3; }
         .flap { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-top: 100px solid #e05e78; z-index: 5; transform-origin: top; transition: transform 0.6s ease; }
-        .letter { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 250px; background: #fffcf2; padding: 20px; border-radius: 8px; z-index: 2; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .letter p { font-family: 'Quicksand', sans-serif; color: #333; font-size: 0.95rem; line-height: 1.5; text-align: left; }
-        
+        .letter { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 260px; background: #fffcf2; padding: 25px 20px; border-radius: 8px; z-index: 2; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .letter p { font-family: 'Quicksand', sans-serif; color: #222; font-size: 0.95rem; line-height: 1.6; text-align: left; }
         .envelope-wrapper.open .flap { transform: translateX(-50%) rotateX(180deg); z-index: 1; }
-        .envelope-wrapper.open .letter { transform: translateX(-50%) translateY(-150px); z-index: 6; }
+        .envelope-wrapper.open .letter { transform: translateX(-50%) translateY(-170px); z-index: 6; }
 
-        /* --- COMPONENT: SCRAPBOOK POLAROIDS --- */
-        .scrapbook-container { position: relative; width: 100%; height: 400px; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
-        .scrapbook-polaroid { position: absolute; width: 150px; background: white; padding: 8px 8px 30px 8px; border-radius: 4px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 1px solid #eee; transition: transform 0.3s ease, z-index 0s; }
-        .scrapbook-polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .scrapbook-polaroid:nth-child(1) { transform: rotate(-12deg) translate(-50px, -40px); z-index: 1; }
-        .scrapbook-polaroid:nth-child(2) { transform: rotate(8deg) translate(60px, -20px); z-index: 2; }
-        .scrapbook-polaroid:nth-child(3) { transform: rotate(-5deg) translate(-20px, 40px); z-index: 3; }
-        .scrapbook-polaroid:nth-child(4) { transform: rotate(15deg) translate(50px, 60px); z-index: 4; }
-        .scrapbook-polaroid:nth-child(5) { transform: rotate(-2deg) translate(0px, 0px); z-index: 5; width: 170px; }
-        .scrapbook-polaroid:active { z-index: 10 !important; transform: scale(1.1) !important; } /* Brings to front on tap */
+        /* --- PHOTO DESK SUBSYSTEM --- */
+        .scrapbook-container { position: relative; width: 100%; height: 420px; display: flex; align-items: center; justify-content: center; }
+        .scrapbook-polaroid { position: absolute; width: 140px; background: #fffcf2; padding: 10px 10px 35px 10px; border-radius: 2px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); cursor: pointer; }
+        .scrapbook-polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; filter: sepia(8%); }
+        .scrapbook-polaroid:nth-child(1) { transform: rotate(-15deg) translate(-60px, -50px); z-index: 1; }
+        .scrapbook-polaroid:nth-child(2) { transform: rotate(10deg) translate(60px, -30px); z-index: 2; }
+        .scrapbook-polaroid:nth-child(3) { transform: rotate(-8deg) translate(-30px, 50px); z-index: 3; }
+        .scrapbook-polaroid:nth-child(4) { transform: rotate(18deg) translate(50px, 70px); z-index: 4; }
+        .scrapbook-polaroid:nth-child(5) { transform: rotate(-3deg) translate(0px, 10px); z-index: 5; width: 160px; }
 
-        /* --- COMPONENT: VOICE NOTE UI --- */
-        .voice-note-ui { background: rgba(0,0,0,0.4); border-radius: 40px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; margin-top: 20px; border: 1px solid rgba(255,153,170,0.3); }
-        .play-btn { width: 50px; height: 50px; border-radius: 50%; background: #ba1636; color: white; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; transition: transform 0.2s; }
+        /* --- MAP SUBSYSTEM --- */
+        .map-container { width: 100%; border-radius: 16px; overflow: hidden; border: 2px solid rgba(255,153,170,0.3); position: relative; background: #111; }
+        .map-container img { width: 100%; display: block; opacity: 0.85; }
+        .map-pulse { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #ff4d88; border-radius: 50%; box-shadow: 0 0 15px #ff4d88; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes ping { 75%, 100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; } }
+
+        /* --- AUDIO NOTES SUBSYSTEM --- */
+        .voice-note-ui { background: rgba(0,0,0,0.6); border-radius: 40px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,153,170,0.3); }
+        .play-btn { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; background: #ba1636; color: white; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 5px 15px rgba(186,22,54,0.5); outline: none; }
         .play-btn:active { transform: scale(0.9); }
-        .waveform { flex-grow: 1; height: 30px; background: repeating-linear-gradient(90deg, #ff99aa 0px, #ff99aa 3px, transparent 3px, transparent 6px); opacity: 0.5; border-radius: 4px; }
-        .waveform.playing { opacity: 1; animation: wave-pulse 1s infinite alternate; }
-        @keyframes wave-pulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        .waveform { flex-grow: 1; height: 35px; background: repeating-linear-gradient(90deg, #ff99aa 0px, #ff99aa 4px, transparent 4px, transparent 8px); opacity: 0.35; border-radius: 4px; }
+        .waveform.playing { opacity: 1; animation: wave-pulse 0.8s infinite alternate; }
+        @keyframes wave-pulse { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
     </style>
 </head>
 <body>
 
+    <!-- REAL-TIME WebGL RENDER GRAPHICS STAGE -->
     <div id="canvas-container"></div>
 
+    <!-- STAGE 1: LOCK SCREEN (UNTOUCHED) -->
     <div id="lock-stage">
         <div class="polaroid-lock">
+            <div class="bow">🎀</div>
             <img src="sweetu.jpg" alt="My Sweetu">
             <div class="caption">One Year of Us</div>
         </div>
@@ -142,16 +154,20 @@
         </div>
     </div>
 
+    <!-- STAGE 2: LIVE WEB HUB -->
     <div id="scroll-wrapper">
         <div class="content-container">
             
-            <div class="interactive-gap">
-                <div class="scroll-indicator">Swipe the heart, then scroll down ↓</div>
+            <!-- Safe Multi-Axis Interactive Space -->
+            <div class="interactive-gap" id="pulse-zone">
+                <div class="tap-indicator">Swipe to rotate 360° | Tap to pulse</div>
+                <div class="scroll-indicator">Scroll down ↓</div>
             </div>
 
+            <!-- SECTION 1: LOVE LETTER -->
             <div class="glass-panel">
                 <h2 class="section-title">A Note For You</h2>
-                <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 10px;">Tap the envelope to open</p>
+                <p class="section-subtitle">Tap the envelope to open</p>
                 <div class="envelope-wrapper" onclick="this.classList.toggle('open')">
                     <div class="flap"></div>
                     <div class="letter">
@@ -161,35 +177,41 @@
                 </div>
             </div>
 
+            <!-- SECTION 2: SPOTIFY MUSIC HUB -->
             <div class="glass-panel">
                 <h2 class="section-title">Our Soundtrack</h2>
-                <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 20px;">Echoes of eternity</p>
-                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                <p class="section-subtitle">One Of The Girls</p>
+                <iframe style="border-radius:12px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);" src="https://open.spotify.com/embed/track/7szuecWAPwGoV1e5vGu8tl?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
             </div>
 
+            <!-- SECTION 3: POLAROID DESK LAYER -->
             <div class="glass-panel">
                 <h2 class="section-title">Our Memories</h2>
-                <p style="color: #ddd; font-size: 0.9rem;">Tap any photo to bring it to the front</p>
+                <p class="section-subtitle">Tap any photo to bring it to the front</p>
                 <div class="scrapbook-container">
-                    <div class="scrapbook-polaroid"><img src="memory1.jpg" onerror="this.src='sweetu.jpg'"></div>
-                    <div class="scrapbook-polaroid"><img src="memory2.jpg" onerror="this.src='sweetu.jpg'"></div>
-                    <div class="scrapbook-polaroid"><img src="memory3.jpg" onerror="this.src='sweetu.jpg'"></div>
-                    <div class="scrapbook-polaroid"><img src="memory4.jpg" onerror="this.src='sweetu.jpg'"></div>
-                    <div class="scrapbook-polaroid"><img src="memory5.jpg" onerror="this.src='sweetu.jpg'"></div>
+                    <div class="scrapbook-polaroid" onclick="bringToFront(this)"><img src="memory1.jpg" onerror="this.src='sweetu.jpg'"></div>
+                    <div class="scrapbook-polaroid" onclick="bringToFront(this)"><img src="memory2.jpg" onerror="this.src='sweetu.jpg'"></div>
+                    <div class="scrapbook-polaroid" onclick="bringToFront(this)"><img src="memory3.jpg" onerror="this.src='sweetu.jpg'"></div>
+                    <div class="scrapbook-polaroid" onclick="bringToFront(this)"><img src="memory4.jpg" onerror="this.src='sweetu.jpg'"></div>
+                    <div class="scrapbook-polaroid" onclick="bringToFront(this)"><img src="memory5.jpg" onerror="this.src='sweetu.jpg'"></div>
                 </div>
             </div>
 
+            <!-- SECTION 4: REAL TRANSIT ROADTRACK -->
             <div class="glass-panel">
                 <h2 class="section-title">Closing The Distance</h2>
-                <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 15px;">Deoghar → Prayagraj</p>
-                <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,153,170,0.5);">
-                    <img src="map.png" alt="Map Route" style="width: 100%; display: block;" onerror="this.style.display='none'">
-                    <div style="padding: 20px; background: rgba(0,0,0,0.5); font-family: 'Playfair Display', serif; color: #ff99aa; font-size: 1.2rem;">Our hearts are always connected.</div>
+                <p class="section-subtitle">Deoghar → Prayagraj</p>
+                <div class="map-container">
+                    <img src="map.png" alt="Map Route" onerror="this.style.opacity='0'">
+                    <div class="map-pulse"></div>
+                    <p style="position: absolute; bottom: 15px; width: 100%; text-align: center; font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: white; text-shadow: 0 2px 5px black;">Love knows no distance.</p>
                 </div>
             </div>
 
+            <!-- SECTION 5: PRIVATE SOUND BIT -->
             <div class="glass-panel" style="margin-bottom: 80px;">
                 <h2 class="section-title">Listen...</h2>
+                <p class="section-subtitle">A message from me to you</p>
                 <div class="voice-note-ui">
                     <button class="play-btn" id="vn-btn" onclick="toggleAudio()">▶</button>
                     <div class="waveform" id="vn-wave"></div>
@@ -197,13 +219,13 @@
                 </div>
             </div>
 
-            <h1 style="font-family: 'Dancing Script', cursive; color: #ff99aa; font-size: 3rem; text-align: center;">Forever & Always ❤️</h1>
+            <h1 style="font-family: 'Dancing Script', cursive; color: #ff99aa; font-size: 3.5rem; text-align: center; margin-bottom: 50px;">Forever & Always ❤️</h1>
 
         </div>
     </div>
 
     <script>
-        // --- 1. PASSCODE LOGIC ---
+        // --- 1. UNTOUCHED LOCKSCREEN INTERACTION ---
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
@@ -217,7 +239,7 @@
                 document.getElementById('lock-stage').style.opacity = "0";
                 setTimeout(() => {
                     document.getElementById('lock-stage').style.display = "none";
-                    triggerGalaxyToHeartMorph();
+                    executeMassiveMorph();
                 }, 1000);
             } else { 
                 const dotsContainer = document.getElementById('dots-container');
@@ -226,21 +248,39 @@
             }
         }
 
-        // --- 2. THE LIVING 3D ENGINE ---
-        let scene, camera, renderer, particleSystem, particleGeometry, controls;
-        const PARTICLE_COUNT = 15000;
+        // --- 2. THE 45,000 PARTICLE HIGH-SPEED GPU SYSTEM ---
+        let scene, camera, renderer, particleSystem, particleGeometry;
+        const PARTICLE_COUNT = 45000; // Hyper-dense stellar configurations
+        
         let spherePositions = new Float32Array(PARTICLE_COUNT * 3);
         let heartPositions = new Float32Array(PARTICLE_COUNT * 3);
-        let currentPositions;
+        let currentPositions = new Float32Array(PARTICLE_COUNT * 3);
+        let colors = new Float32Array(PARTICLE_COUNT * 3);
+        
+        // High-end agency color profiling
+        const colorPalette = [
+            new THREE.Color(0xff3377), // Neon Pink
+            new THREE.Color(0x990022), // Crimson Velvet
+            new THREE.Color(0xffe6eb)  // Brilliant Stardust White
+        ];
 
-        function createGlowTexture() {
+        // Core single-variable configuration to save massive amounts of CPU workload
+        let morphController = { progress: 0 }; 
+        let isMorphed = false;
+        
+        // Physics and Inertia Rotation tracking variables
+        let rotVelocityX = 0, rotVelocityY = 0;
+        let baseAutospinY = 0.002;
+        let scrollTiltAngle = 0;
+
+        function createNebulaTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 64; canvas.height = 64;
             const ctx = canvas.getContext('2d');
             const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
             gradient.addColorStop(0, 'rgba(255,255,255,1)');
-            gradient.addColorStop(0.2, 'rgba(255,100,150,1)');
-            gradient.addColorStop(0.5, 'rgba(186,22,54,0.3)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.85)');
+            gradient.addColorStop(0.5, 'rgba(255,105,180,0.25)');
             gradient.addColorStop(1, 'rgba(0,0,0,0)');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, 64, 64);
@@ -251,84 +291,18 @@
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 40;
+            camera.position.z = 38;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // True OrbitControls so she can spin the universe manually
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; 
-            controls.dampingFactor = 0.05;
-            controls.enablePan = false;
-            controls.enableZoom = true;
-            controls.autoRotate = true; // Slowly spins on its own
-            controls.autoRotateSpeed = 1.0;
-
             for(let i = 0; i < PARTICLE_COUNT; i++) {
-                // Galaxy Sphere Math
+                // Sphere Coordinates
                 const u = Math.random(); const v = Math.random();
                 const theta = u * 2.0 * Math.PI;
                 const phi = Math.acos(2.0 * v - 1.0);
-                const r = 12 + (Math.random() * 5); 
+                const r = 12.5 + (Math.random() * 4.5); 
                 spherePositions[i*3] = r * Math.sin(phi) * Math.cos(theta);
                 spherePositions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-                spherePositions[i*3+2] = r * Math.cos(phi);
-
-                // Volumetric Heart Math
-                const t = Math.random() * Math.PI * 2;
-                const hr = 0.65 + (Math.random() * 0.4); 
-                const hx = hr * 16 * Math.pow(Math.sin(t), 3);
-                const hy = hr * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-                const hz = (Math.random() - 0.5) * 6; 
-                heartPositions[i*3] = hx * 0.8;
-                heartPositions[i*3+1] = hy * 0.8;
-                heartPositions[i*3+2] = hz;
-            }
-
-            particleGeometry = new THREE.BufferGeometry();
-            currentPositions = new Float32Array(spherePositions);
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
-
-            const material = new THREE.PointsMaterial({
-                size: window.innerWidth < 768 ? 0.4 : 0.3,
-                map: createGlowTexture(),
-                transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false
-            });
-
-            particleSystem = new THREE.Points(particleGeometry, material);
-            scene.add(particleSystem);
-            
-            window.addEventListener('resize', onWindowResize);
-            animateLoop();
-        }
-
-        let heartPulseTime = 0;
-        let isMorphed = false;
-
-        function animateLoop() {
-            requestAnimationFrame(animateLoop);
-            controls.update(); // Keeps the interactive dragging buttery smooth
-
-            // Adds a living heartbeat pulse to the structure after it morphs
-            if(isMorphed) {
-                heartPulseTime += 0.05;
-                const scale = 1 + Math.sin(heartPulseTime) * 0.03;
-                particleSystem.scale.set(scale, scale, scale);
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // --- 3. MORPH & REVEAL SEQUENCE ---
-        function triggerGalaxyToHeartMorph() {
-            isMorphed = true;
-            controls.autoRotateSpeed = 2.5; // Spins faster after
