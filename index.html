@@ -4,190 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You 💕</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        /* Body starts locked, no scrolling allowed */
         body { 
-            background-color: #ba1636; color: #333; 
-            font-family: 'Quicksand', sans-serif;
-            overflow: hidden; margin: 0;
-            -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+            background-color: #050505; color: white; overflow: hidden; 
+            font-family: 'Quicksand', sans-serif; -webkit-touch-callout: none; user-select: none;
         }
 
-        /* --- STAGE 1: LOCK SCREEN --- */
-        #lock-stage { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ba1636; z-index: 100;
+        /* --- 3D CANVAS LAYER --- */
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; opacity: 0; transition: opacity 2s ease; }
+
+        /* --- UI LAYERS --- */
+        #lock-stage {
+            position: absolute; inset: 0; z-index: 100; background: #ba1636;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 1s ease, visibility 1s;
         }
 
-        .lock-container { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 70px; width: 100%; max-width: 800px; padding: 20px; }
-        .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; text-align: center; width: 260px; transform: rotate(-2deg); }
-        .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background-color: #eee; border-radius: 4px; pointer-events: none; }
-        .polaroid .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; line-height: 1.2; padding: 0 10px; }
-        .caption .title { font-family: 'Dancing Script', cursive; font-size: 1.6rem; display: block; }
-        .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; pointer-events: none; }
-        
-        @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
+        .polaroid { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; text-align: center; width: 240px; transform: rotate(-2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
+        .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; font-family: 'Dancing Script', cursive; font-size: 1.6rem; }
 
-        .keypad-side { display: flex; flex-direction: column; align-items: center; }
-        .passcode-title { font-size: 1.1rem; margin-bottom: 20px; color: #ffccd5; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
-        .dots-container { display: flex; gap: 15px; margin-bottom: 35px; }
-        .dot { width: 22px; height: 22px; border: 2.5px solid #ff99aa; border-radius: 6px; transition: all 0.3s ease; }
-        .dot.active { background-color: #ff99aa; transform: scale(1.15); border-radius: 50%; }
-        
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
-        .shake { animation: shake 0.4s ease-in-out; }
-        .shake .dot { border-color: white; background-color: transparent; }
-        
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-        .key, .enter-btn { cursor: pointer; user-select: none; font-family: 'Quicksand', sans-serif; font-weight: 700; border: none; outline: none; background: #ff99aa; color: #ba1636; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.15s ease; touch-action: manipulation; }
-        .key { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; }
-        .key:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .enter-btn { padding: 12px 45px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
-        .enter-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .keypad-side { margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+        .passcode-title { font-size: 1rem; margin-bottom: 15px; color: #ffccd5; letter-spacing: 2px; text-transform: uppercase; }
+        .dots-container { display: flex; gap: 15px; margin-bottom: 25px; }
+        .dot { width: 20px; height: 20px; border: 2px solid #ff99aa; border-radius: 50%; }
+        .dot.active { background-color: #ff99aa; transform: scale(1.1); }
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .key, .enter-btn { cursor: pointer; background: #ff99aa; color: #ba1636; border: none; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.5rem; transition: transform 0.1s; }
+        .key { width: 55px; height: 55px; border-radius: 50%; }
+        .key:active { transform: scale(0.9); }
+        .enter-btn { padding: 12px 40px; border-radius: 30px; font-size: 1.2rem; text-transform: uppercase; }
 
-        @media (max-width: 768px) {
-            .lock-container { flex-direction: column; gap: 20px; }
-            .polaroid { width: 240px; padding: 12px 12px 75px 12px; margin-top: 20px; }
-            .key { width: 50px; height: 50px; font-size: 1.3rem; }
-            .keypad-grid { gap: 12px; margin-bottom: 20px; }
-            .dots-container { margin-bottom: 25px; }
+        #interaction-prompt {
+            position: absolute; bottom: 15vh; width: 100%; text-align: center;
+            font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: #ff99aa;
+            z-index: 50; opacity: 0; pointer-events: none; text-shadow: 0 0 20px rgba(255,153,170,0.5);
         }
 
-        /* --- STAGE 2: SCROLLABLE ATMOSPHERE --- */
-        #main-content {
-            opacity: 0; visibility: hidden;
-            background-image: linear-gradient(180deg, #eae1d8 0%, #f5e4e6 50%, #d5e6eb 100%);
-            min-height: 100vh; width: 100%;
-            transition: opacity 1.5s ease;
-            position: relative;
-        }
-
-        /* The Fixed Particle Background Layer */
-        #particle-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; pointer-events: none; overflow: hidden;
-        }
-
-        .particle {
-            position: absolute; border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,182,193,0.2) 100%);
-            bottom: -10vh; /* Start below screen */
-            will-change: transform, opacity;
-            animation: floatUp linear infinite;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
-        }
-
-        /* The Scrollable Content Layer */
-        .content-wrapper {
-            position: relative; z-index: 10;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 10vh 20px 15vh 20px; width: 100%; max-width: 800px; margin: 0 auto;
-        }
-
-        /* Smooth Scroll Reveal Elements */
-        .reveal-item {
-            opacity: 0; transform: translateY(60px);
-            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-            width: 100%; text-align: center;
-            margin-bottom: 12vh;
-        }
-
-        .reveal-item.visible {
-            opacity: 1; transform: translateY(0);
-        }
-
-        .hero-title { font-family: 'Playfair Display', serif; color: #ba1636; font-size: 3.5rem; line-height: 1.2; margin-bottom: 10px; }
-        .hero-subtitle { font-family: 'Dancing Script', cursive; color: #d44a65; font-size: 1.8rem; }
-        
-        .placeholder-box {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 20px; padding: 40px 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            color: #ba1636; font-weight: 700;
+        #spotify-layer {
+            position: absolute; top: 10vh; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 350px; z-index: 50; opacity: 0; transition: opacity 2s ease;
+            pointer-events: none; /* Disabled until active */
         }
     </style>
 </head>
 <body>
 
     <div id="lock-stage">
-        <div class="lock-container">
-            <div class="polaroid">
-                <div class="bow">🎀</div>
-                <img src="sweetu.jpg" alt="My Sweetu">
-                <div class="caption">
-                    <span class="title">Congratulations for one year of our love</span>
-                </div>
+        <div class="polaroid">
+            <img src="sweetu.jpg" alt="My Sweetu">
+            <div class="caption">Congratulations for one year of our love</div>
+        </div>
+        <div class="keypad-side">
+            <h2 class="passcode-title">ENTER YOUR PASSCODE</h2>
+            <div class="dots-container" id="dots-container">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
-            <div class="keypad-side">
-                <h2 class="passcode-title">ENTER YOUR PASSCODE</h2>
-                <div class="dots-container" id="dots-container">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-                <div class="keypad-grid">
-                    <button class="key" onclick="pressKey('1')">1</button>
-                    <button class="key" onclick="pressKey('2')">2</button>
-                    <button class="key" onclick="pressKey('3')">3</button>
-                    <button class="key" onclick="pressKey('4')">4</button>
-                    <button class="key" onclick="pressKey('5')">5</button>
-                    <button class="key" onclick="pressKey('6')">6</button>
-                    <button class="key" onclick="pressKey('7')">7</button>
-                    <button class="key" onclick="pressKey('8')">8</button>
-                    <button class="key" onclick="pressKey('9')">9</button>
-                    <button class="key" onclick="clearCode()">*</button>
-                    <button class="key" onclick="pressKey('0')">0</button>
-                    <button class="key" onclick="clearCode()">#</button>
-                </div>
-                <button class="enter-btn" onclick="checkPasscode()">Enter</button>
+            <div class="keypad-grid">
+                <button class="key" onclick="pressKey('1')">1</button>
+                <button class="key" onclick="pressKey('2')">2</button>
+                <button class="key" onclick="pressKey('3')">3</button>
+                <button class="key" onclick="pressKey('4')">4</button>
+                <button class="key" onclick="pressKey('5')">5</button>
+                <button class="key" onclick="pressKey('6')">6</button>
+                <button class="key" onclick="pressKey('7')">7</button>
+                <button class="key" onclick="pressKey('8')">8</button>
+                <button class="key" onclick="pressKey('9')">9</button>
+                <button class="key" onclick="clearCode()">*</button>
+                <button class="key" onclick="pressKey('0')">0</button>
+                <button class="key" onclick="clearCode()">#</button>
             </div>
+            <button class="enter-btn" onclick="checkPasscode()">Enter</button>
         </div>
     </div>
 
-    <div id="main-content">
-        <div id="particle-bg"></div>
+    <div id="canvas-container"></div>
+    <div id="interaction-prompt">Touch the universe...</div>
 
-        <div class="content-wrapper">
-            
-            <div class="reveal-item" style="margin-top: 10vh;">
-                <h1 class="hero-title">Happy Anniversary<br>My Love</h1>
-                <div class="hero-subtitle">Scroll down to explore our journey...</div>
-            </div>
-
-            <div class="reveal-item placeholder-box">
-                [ LETTER & SPOTIFY PLAYER PLACEHOLDER ]<br><br>
-                This area will house the pink envelope letter and the Spotify widget.
-            </div>
-
-            <div class="reveal-item placeholder-box" style="height: 400px; display: flex; align-items: center; justify-content: center;">
-                [ POLAROID MEMORY GRID PLACEHOLDER ]<br><br>
-                This area will display the scattered array of memory1.jpg to memory5.jpg.
-            </div>
-
-            <div class="reveal-item placeholder-box">
-                [ MAP & VOICE NOTE PLACEHOLDER ]<br><br>
-                This area will show the Deoghar to Prayagraj tracking map and the interactive voice note UI.
-            </div>
-            
-            <div class="reveal-item hero-subtitle" style="margin-top: 5vh; margin-bottom: 5vh;">
-                Forever & Always ❤️
-            </div>
+    <div id="spotify-layer">
+        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(255,153,170,0.3);">
+            <p style="color: #ff99aa; margin-bottom: 10px;">🎵 Echoes of eternity</p>
+            <div style="height: 80px; border: 1px dashed #ff99aa; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#fff;">[Spotify Iframe goes here]</div>
         </div>
     </div>
 
     <script>
+        // --- 1. LOCK SCREEN LOGIC ---
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
         const dots = document.querySelectorAll('.dot');
@@ -198,80 +105,152 @@
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
-                // Transition the Screens
-                const lockStage = document.getElementById('lock-stage');
-                const mainContent = document.getElementById('main-content');
-                
-                lockStage.style.opacity = "0";
-                
+                document.getElementById('lock-stage').style.opacity = "0";
                 setTimeout(() => {
-                    lockStage.style.visibility = "hidden";
-                    mainContent.style.visibility = "visible";
-                    mainContent.style.opacity = "1";
-                    
-                    // Unlock the page scrolling
-                    document.body.style.overflow = "auto";
-                    
-                    // Initialize the scroll reveal observer
-                    initScrollReveal();
+                    document.getElementById('lock-stage').style.visibility = "hidden";
+                    init3DUniverse(); // Boot up the GPU engine
                 }, 1000);
             } else { 
-                const dotsContainer = document.getElementById('dots-container');
-                dotsContainer.classList.add('shake'); 
-                setTimeout(() => { dotsContainer.classList.remove('shake'); clearCode(); }, 500); 
+                clearCode(); 
             }
         }
 
-        // --- PARTICLE GENERATOR (Runs Once, Animated by CSS) ---
-        window.onload = () => {
-            const particleContainer = document.getElementById('particle-bg');
-            const particleCount = 40; // Keeps DOM incredibly light
+        // --- 2. THREE.JS 3D ENGINE ---
+        let scene, camera, renderer, particles, particleGeometry;
+        const PARTICLE_COUNT = 8000; // Massive density, zero lag on GPU
+        
+        let spherePositions = new Float32Array(PARTICLE_COUNT * 3);
+        let heartPositions = new Float32Array(PARTICLE_COUNT * 3);
+        
+        let isHeartShape = false;
+        let mouseX = 0; let mouseY = 0;
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
+        function init3DUniverse() {
+            const container = document.getElementById('canvas-container');
+            container.style.opacity = "1";
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 45;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Generate Math for Shapes
+            for(let i = 0; i < PARTICLE_COUNT; i++) {
+                // Shape 1: The Galaxy (Sphere)
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const r = 15 + Math.random() * 8; // Galaxy radius
                 
-                // Randomize size, starting position, and animation timing
-                const size = Math.random() * 8 + 4; // 4px to 12px
-                const leftPos = Math.random() * 100; // 0% to 100% width
-                const duration = Math.random() * 10 + 10; // 10s to 20s float time
-                const delay = Math.random() * 10; // Staggered start times
+                spherePositions[i*3] = r * Math.sin(phi) * Math.cos(theta);
+                spherePositions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+                spherePositions[i*3+2] = r * Math.cos(phi);
+
+                // Shape 2: The 3D Heart (Parametric Math)
+                const t = Math.random() * Math.PI * 2;
+                const hr = 0.8 + Math.random() * 0.4; // Thickness spread
                 
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${leftPos}%`;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.animationDelay = `-${delay}s`; // Negative delay starts them immediately
+                const hx = hr * 16 * Math.pow(Math.sin(t), 3);
+                const hy = hr * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                const hz = (Math.random() - 0.5) * 6; // 3D depth of the heart
                 
-                particleContainer.appendChild(particle);
+                heartPositions[i*3] = hx * 0.8;
+                heartPositions[i*3+1] = hy * 0.8;
+                heartPositions[i*3+2] = hz;
             }
-        };
 
-        // --- SCROLL REVEAL LOGIC ---
-        function initScrollReveal() {
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15 // Triggers when 15% of the element is visible
-            };
+            particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(spherePositions, 3));
 
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.reveal-item').forEach(item => {
-                observer.observe(item);
+            // Premium Glowing Material
+            const material = new THREE.PointsMaterial({
+                size: 0.18,
+                color: 0xff4d88, // Deep glowing pink
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
             });
-            
-            // Immediately trigger visibility check for items already in view on load
+
+            particles = new THREE.Points(particleGeometry, material);
+            scene.add(particles);
+
+            // Fade in the prompt
             setTimeout(() => {
-                const firstItems = document.querySelectorAll('.reveal-item');
-                if(firstItems[0]) firstItems[0].classList.add('visible');
-            }, 100);
+                gsap.to("#interaction-prompt", { opacity: 1, duration: 2, yoyo: true, repeat: -1 });
+            }, 2000);
+
+            // Interaction Listeners
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('touchmove', onTouchMove, {passive: true});
+            document.addEventListener('mousemove', onMouseMove);
+            
+            // The magic morph trigger
+            container.addEventListener('click', morphToHeart);
+            container.addEventListener('touchstart', morphToHeart);
+
+            animate();
+        }
+
+        function morphToHeart() {
+            if(isHeartShape) return;
+            isHeartShape = true;
+            
+            gsap.killTweensOf("#interaction-prompt");
+            gsap.to("#interaction-prompt", { opacity: 0, duration: 0.5 });
+
+            // Reveal the UI
+            const spotifyLayer = document.getElementById('spotify-layer');
+            spotifyLayer.style.opacity = "1";
+            spotifyLayer.style.pointerEvents = "auto";
+
+            // Morphing Physics via GSAP
+            const currentPositions = particleGeometry.attributes.position.array;
+            
+            for(let i = 0; i < PARTICLE_COUNT; i++) {
+                gsap.to(currentPositions, {
+                    [i*3]: heartPositions[i*3],
+                    [i*3+1]: heartPositions[i*3+1],
+                    [i*3+2]: heartPositions[i*3+2],
+                    duration: 2.5 + Math.random() * 1.5, // Organic swirling delay
+                    ease: "power3.inOut",
+                    onUpdate: () => { particleGeometry.attributes.position.needsUpdate = true; }
+                });
+            }
+        }
+
+        // Swipe & Mouse tracking for 3D rotation
+        function onMouseMove(event) {
+            mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
+            mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
+        }
+        function onTouchMove(event) {
+            mouseX = (event.touches[0].clientX - window.innerWidth / 2) * 0.001;
+            mouseY = (event.touches[0].clientY - window.innerHeight / 2) * 0.001;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // The Engine Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Constant subtle rotation
+            particles.rotation.y += 0.002;
+            
+            // Interactive Parallax
+            particles.rotation.x += (mouseY - particles.rotation.x) * 0.05;
+            particles.rotation.y += (mouseX - particles.rotation.y) * 0.05;
+
+            renderer.render(scene, camera);
         }
     </script>
 </body>
