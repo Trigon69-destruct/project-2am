@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You 💕</title>
     
+    <!-- Core 3D Graphics and Easing Engines -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&family=Quicksand:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght=700&family=Playfair+Display:wght=600;700&family=Quicksand:wght=400;500;700&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -20,7 +21,7 @@
         /* --- BACKGROUND 3D CANVAS LAYER --- */
         #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
 
-        /* --- STAGE 1: LOCK SCREEN (UNTOUCHED) --- */
+        /* --- STAGE 1: LOCK SCREEN --- */
         #lock-stage {
             position: fixed; inset: 0; z-index: 100; background: #ba1636;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -28,7 +29,7 @@
         }
 
         .polaroid-lock { background: white; padding: 15px 15px 85px 15px; border-radius: 6px; text-align: center; width: 240px; transform: rotate(-2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; }
-        .polaroid-lock img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
+        .polaroid-lock img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; background: #f5f5f5; }
         .caption { color: #ba1636; position: absolute; bottom: 15px; left: 0; width: 100%; font-family: 'Dancing Script', cursive; font-size: 1.6rem; }
         .bow { position: absolute; top: -25px; left: -25px; font-size: 4rem; transform: rotate(-15deg); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(-15deg) translateY(-8px); } }
@@ -118,12 +119,14 @@
 </head>
 <body>
 
+    <!-- REAL-TIME WebGL RENDER GRAPHICS STAGE -->
     <div id="canvas-container"></div>
 
+    <!-- STAGE 1: LOCK SCREEN -->
     <div id="lock-stage">
         <div class="polaroid-lock">
             <div class="bow">🎀</div>
-            <img src="sweetu.png" alt="My Sweetu">
+            <img src="sweetu.png" alt="My Sweetu" id="lock-img">
             <div class="caption">One Year of Us</div>
         </div>
         <div class="keypad-side">
@@ -149,14 +152,17 @@
         </div>
     </div>
 
+    <!-- STAGE 2: LIVE WEB HUB -->
     <div id="scroll-wrapper">
         <div class="content-container">
             
+            <!-- Safe Multi-Axis Interactive Space -->
             <div class="interactive-gap" id="pulse-zone">
                 <div class="tap-indicator">Swipe to rotate 360° | Tap to pulse</div>
                 <div class="scroll-indicator">Scroll down ↓</div>
             </div>
 
+            <!-- SECTION 1: LOVE LETTER -->
             <div class="glass-panel">
                 <h2 class="section-title">A Note For You</h2>
                 <p class="section-subtitle">Tap the envelope to open</p>
@@ -169,12 +175,14 @@
                 </div>
             </div>
 
+            <!-- SECTION 2: SPOTIFY MUSIC HUB -->
             <div class="glass-panel">
                 <h2 class="section-title">Our Soundtrack</h2>
                 <p class="section-subtitle">One Of The Girls</p>
                 <iframe style="border-radius:12px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);" src="https://open.spotify.com/embed/track/7FbrGaOUqWTQp2W1z817C6?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
             </div>
 
+            <!-- SECTION 3: POLAROID DESK LAYER -->
             <div class="glass-panel">
                 <h2 class="section-title">Our Memories</h2>
                 <p class="section-subtitle">Tap any photo to bring it to the front</p>
@@ -187,6 +195,7 @@
                 </div>
             </div>
 
+            <!-- SECTION 4: REAL TRANSIT ROADTRACK -->
             <div class="glass-panel">
                 <h2 class="section-title">Closing The Distance</h2>
                 <p class="section-subtitle">Deoghar → Prayagraj</p>
@@ -197,6 +206,7 @@
                 </div>
             </div>
 
+            <!-- SECTION 5: PRIVATE SOUND BIT -->
             <div class="glass-panel" style="margin-bottom: 80px;">
                 <h2 class="section-title">Listen...</h2>
                 <p class="section-subtitle">A message from me to you</p>
@@ -213,14 +223,34 @@
     </div>
 
     <script>
-        // --- 1. UNTOUCHED LOCKSCREEN INTERACTION ---
+        // --- 1. DEFERRED DOT TRACKING ---
         const CORRECT_PASSCODE = "2308"; 
         let currentInput = "";
-        const dots = document.querySelectorAll('.dot');
+        let dots = [];
 
-        function pressKey(num) { if (currentInput.length < 4) { currentInput += num; updateDots(); } }
+        window.addEventListener('DOMContentLoaded', () => {
+            dots = document.querySelectorAll('.dot');
+            
+            // Check if user uploaded uppercase extension (.PNG) and match dynamically
+            const lockImg = document.getElementById('lock-img');
+            lockImg.onerror = function() {
+                if(this.src.endsWith('.png')) this.src = 'sweetu.PNG';
+            };
+        });
+
+        function pressKey(num) { 
+            if (currentInput.length < 4) { 
+                currentInput += num; 
+                updateDots(); 
+            } 
+        }
         function clearCode() { currentInput = ""; updateDots(); }
-        function updateDots() { dots.forEach((dot, index) => { if (index < currentInput.length) dot.classList.add('active'); else dot.classList.remove('active'); }); }
+        function updateDots() { 
+            dots.forEach((dot, index) => { 
+                if (index < currentInput.length) dot.classList.add('active'); 
+                else dot.classList.remove('active'); 
+            }); 
+        }
 
         function checkPasscode() {
             if (currentInput === CORRECT_PASSCODE) {
@@ -238,25 +268,17 @@
 
         // --- 2. THE 45,000 PARTICLE HIGH-SPEED GPU SYSTEM ---
         let scene, camera, renderer, particleSystem, particleGeometry;
-        const PARTICLE_COUNT = 45000; // Hyper-dense stellar configurations
+        const PARTICLE_COUNT = 45000; 
         
         let spherePositions = new Float32Array(PARTICLE_COUNT * 3);
         let heartPositions = new Float32Array(PARTICLE_COUNT * 3);
         let currentPositions = new Float32Array(PARTICLE_COUNT * 3);
         let colors = new Float32Array(PARTICLE_COUNT * 3);
-        
-        // High-end agency color profiling
-        const colorPalette = [
-            new THREE.Color(0xff3377), // Neon Pink
-            new THREE.Color(0x990022), // Crimson Velvet
-            new THREE.Color(0xffe6eb)  // Brilliant Stardust White
-        ];
+        let colorPalette = [];
 
-        // Core single-variable configuration to save massive amounts of CPU workload
         let morphController = { progress: 0 }; 
         let isMorphed = false;
         
-        // Physics and Inertia Rotation tracking variables
         let rotVelocityX = 0, rotVelocityY = 0;
         let baseAutospinY = 0.002;
         let scrollTiltAngle = 0;
@@ -276,6 +298,13 @@
         }
 
         function init3D() {
+            // Defensively instantiate Three dependencies inside the load callback
+            colorPalette = [
+                new THREE.Color(0xff3377), 
+                new THREE.Color(0x990022), 
+                new THREE.Color(0xffe6eb)  
+            ];
+
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -287,21 +316,7 @@
             container.appendChild(renderer.domElement);
 
             for(let i = 0; i < PARTICLE_COUNT; i++) {
-                // Sphere Coordinates
                 const u = Math.random(); const v = Math.random();
                 const theta = u * 2.0 * Math.PI;
                 const phi = Math.acos(2.0 * v - 1.0);
                 const r = 12.5 + (Math.random() * 4.5); 
-                spherePositions[i*3] = r * Math.sin(phi) * Math.cos(theta);
-                spherePositions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-                spherePositions[i*3+2] = r * Math.cos(phi);
-
-                // Volumetric 3D Heart coordinates with a quadratic distribution to densely populate the inner core
-                const t = Math.random() * Math.PI * 2;
-                const innerClusterFactor = Math.pow(Math.random(), 2); 
-                const hr = 0.55 + (innerClusterFactor * 0.5); 
-                
-                const hx = hr * 16 * Math.pow(Math.sin(t), 3);
-                const hy = hr * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-                const hz = (Math.random() - 0.5) * 8.5; // Expanded volumetric depth parameter
-         
